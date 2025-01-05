@@ -1,20 +1,27 @@
-
-
 const About = () => {
   return (
-    <section id="about" className="py-5">
+    <section id="about" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center mb-4">About Us</h2>
-        <div className="row">
-          <div className="col-lg-6">
-            <p className="lead">
-              We provide the perfect environment for focused reading and studying.
+        <div className="row align-items-center">
+          {/* Text Content */}
+          <div className="col-md-6">
+            <h2 className="fw-bold text-primary mb-3">About ReadingSpace</h2>
+            <p className="text-muted">
+              At <strong>ReadingSpace</strong>, we strive to provide the perfect environment for focused reading and productivity. Whether you&apos;re preparing for exams, working on a project, or simply diving into your favorite book, our facilities are designed to cater to your needs.
+            </p>
+            <p className="text-muted">
+              With comfortable seating, high-speed internet, and a peaceful atmosphere, we make sure you can concentrate without distractions. Join us and experience the difference in productivity and comfort.
+            </p>
+            <p className="fw-bold text-primary">
+              Because every mind deserves the right space to thrive.
             </p>
           </div>
-          <div className="col-lg-6">
+
+          {/* Image */}
+          <div className="col-md-6">
             <img
-              src="/api/placeholder/600/400"
-              alt="About"
+              src="https://img.freepik.com/free-photo/group-young-students-reading-book-library_1150-9004.jpg"
+              alt="Reading Room Image"
               className="img-fluid rounded shadow"
             />
           </div>
