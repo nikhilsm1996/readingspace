@@ -1,4 +1,4 @@
-
+import { Link } from "react-router";
 
 const Pricing = () => {
   const plans = [
@@ -42,7 +42,9 @@ const Pricing = () => {
                       </li>
                     ))}
                   </ul>
-                  <button className="btn btn-primary">Choose Plan</button>
+                  <Link to="/login">
+              <button className="btn btn-primary btn-lg">Choose Plan</button>
+            </Link>
                 </div>
               </div>
             </div>
