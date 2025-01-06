@@ -1,3 +1,6 @@
+
+import { Link } from "react-router-dom";
+
 const Hero = () => {
   return (
     <section id="home" className="bg-light py-5 mt-5">
@@ -6,7 +9,11 @@ const Hero = () => {
           <div className="col-lg-6">
             <h1 className="display-4 fw-bold">Welcome to ReadingSpace</h1>
             <p className="lead">Your perfect reading environment awaits</p>
-            <button className="btn btn-primary btn-lg">Get Started</button>
+            
+            {/* Link to /login page */}
+            <Link to="/login">
+              <button className="btn btn-primary btn-lg">Get Started</button>
+            </Link>
           </div>
           <div className="col-lg-6">
             <img
