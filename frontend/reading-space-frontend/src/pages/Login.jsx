@@ -21,6 +21,10 @@ let Login = () => {
     navigate("/signup");
   };
 
+  const goToForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <>
       <h1>Welcome Back</h1>
@@ -47,6 +51,18 @@ let Login = () => {
         <br />
         <button onClick={handleLogin}>Log In</button>
         <div>
+          <p>
+            <span
+              onClick={goToForgotPassword}
+              style={{
+                color: "blue",
+                cursor: "pointer",
+                textDecoration: "underline",
+              }}
+            >
+              Forgot Password?
+            </span>
+          </p>
           <p>
             Don’t have an account?{" "}
             <span
