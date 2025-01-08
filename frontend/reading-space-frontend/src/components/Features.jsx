@@ -66,12 +66,12 @@ const Features = () => {
 
           <div className="d-flex">
             {visibleFeatures.map((feature, index) => (
-              <div key={index} className="card mx-2" style={{ width: '200px' }}>
+              <div key={index} className="card mx-2" style={{ width: '250px' }}>
                 <img
                   src={feature.image}
                   alt={feature.title}
                   className="card-img-top"
-                  style={{ height: '180px', objectFit: 'cover' }}
+                  style={{ height: '200px', objectFit: 'cover' }}
                 />
                 <div className="card-body">
                   <h5 className="card-title">{feature.title}</h5>
