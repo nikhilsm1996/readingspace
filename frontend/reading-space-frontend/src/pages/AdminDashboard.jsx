@@ -1,206 +1,106 @@
-import { useState, useEffect } from "react";
+/* eslint-disable no-unused-vars */
+import React, { useState } from "react";
+import { Nav, Dropdown, Button } from "react-bootstrap";
+import { FaHome, FaThLarge, FaCogs, FaCalendarAlt, FaExclamationCircle, FaUserCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import DashboardContent from "../components/DashboardContent";
+import Charts from "../components/Charts";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [cabins, setCabins] = useState([]);
-  const [payments, setPayments] = useState({ pending: 0, completed: 0 });
-  const [revenue, setRevenue] = useState([]);
-  const [issues, setIssues] = useState([]);
-  const [vacationNotices, setVacationNotices] = useState([]);
+  const [currentView, setCurrentView] = useState("dashboard");
+  const navigate = useNavigate(); // Hook for navigation
 
-  useEffect(() => {
-    fetchCabins();
-    fetchPayments();
-    fetchRevenue();
-    fetchIssues();
-    fetchVacationNotices();
-  }, []);
-
-  const fetchCabins = async () => {
-    const response = await fetch("http://localhost:3000/cabins");
-    const data = await response.json();
-    setCabins(data);
+  const renderContent = () => {
+    switch (currentView) {
+      case "dashboard":
+        return <DashboardContent />;
+      case "charts":
+        return <Charts />;
+      default:
+        return <h4>Select a valid option from the sidebar.</h4>;
+    }
   };
 
-  const fetchPayments = async () => {
-    const response = await fetch("http://localhost:3000/payments");
-    const data = await response.json();
-    const pending = data.filter((payment) => payment.status === "pending").length;
-    const completed = data.filter((payment) => payment.status === "completed").length;
-    setPayments({ pending, completed });
-  };
-
-  const fetchRevenue = async () => {
-    const response = await fetch("http://localhost:3000/revenue");
-    const data = await response.json();
-    setRevenue(data);
-  };
-
-  const fetchIssues = async () => {
-    const response = await fetch("http://localhost:3000/issues");
-    const data = await response.json();
-    setIssues(data);
-  };
-
-  const fetchVacationNotices = async () => {
-    const response = await fetch("http://localhost:3000/vacation-notices");
-    const data = await response.json();
-    setVacationNotices(data);
+  const handleLogout = () => {
+    // Perform logout actions (e.g., clear session/token)
+    navigate("/"); // Redirect to the index page
   };
 
   return (
-    <div className="container-fluid">
+    <div style={{ display: "flex" }}>
       {/* Sidebar */}
-      <div className="row">
-        <nav className="col-md-2 d-md-block bg-light sidebar">
-          <div className="position-sticky">
-            <ul className="nav flex-column">
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn btn-link ${activeTab === "dashboard" ? "active" : ""}`}
-                  onClick={() => setActiveTab("dashboard")}
-                >
-                  Dashboard
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn btn-link ${activeTab === "cabin-layout" ? "active" : ""}`}
-                  onClick={() => setActiveTab("cabin-layout")}
-                >
-                  Cabin Layout
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn btn-link ${activeTab === "tier-management" ? "active" : ""}`}
-                  onClick={() => setActiveTab("tier-management")}
-                >
-                  Tier Management
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn btn-link ${activeTab === "vacation-notices" ? "active" : ""}`}
-                  onClick={() => setActiveTab("vacation-notices")}
-                >
-                  Vacation Notices
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link btn btn-link ${activeTab === "issues" ? "active" : ""}`}
-                  onClick={() => setActiveTab("issues")}
-                >
-                  Issues Reported
-                </button>
-              </li>
-            </ul>
-          </div>
-        </nav>
+      <div
+        style={{
+          height: "100vh",
+          width: "250px",
+          backgroundColor: "#f8f9fa",
+          padding: "1rem",
+          position: "fixed",
+        }}
+      >
+        <h4 className="text-primary mb-4">Admin Dashboard</h4>
+        <Nav className="flex-column">
+          <Nav.Link
+            onClick={() => setCurrentView("dashboard")}
+            className={`mb-3 ${currentView === "dashboard" ? "text-primary" : "text-dark"}`}
+            style={{ cursor: "pointer" }}
+          >
+            <FaHome className="me-2" />
+            Dashboard
+          </Nav.Link>
+          <Nav.Link
+            onClick={() => setCurrentView("charts")}
+            className={`mb-3 ${currentView === "charts" ? "text-primary" : "text-dark"}`}
+            style={{ cursor: "pointer" }}
+          >
+            <FaThLarge className="me-2" />
+            Charts
+          </Nav.Link>
+          <Nav.Link className="mb-3 text-dark" style={{ cursor: "pointer" }}>
+            <FaCogs className="me-2" />
+            Tier Management
+          </Nav.Link>
+          <Nav.Link className="mb-3 text-dark" style={{ cursor: "pointer" }}>
+            <FaCalendarAlt className="me-2" />
+            Vacation Notices
+          </Nav.Link>
+          <Nav.Link className="mb-3 text-dark" style={{ cursor: "pointer" }}>
+            <FaExclamationCircle className="me-2" />
+            Issues Reported
+          </Nav.Link>
+        </Nav>
+      </div>
 
-        {/* Main Content */}
-        <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-          {activeTab === "dashboard" && (
-            <div>
-              {/* Dashboard Cards */}
-              <div className="row my-4">
-                <div className="col-md-3">
-                  <div className="card text-center">
-                    <div className="card-body">
-                      <h5 className="card-title">Total Cabins</h5>
-                      <p className="card-text display-4">{cabins.length}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="card text-center">
-                    <div className="card-body">
-                      <h5 className="card-title">Occupied Cabins</h5>
-                      <p className="card-text display-4">{cabins.filter((c) => c.status === "occupied").length}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="card text-center">
-                    <div className="card-body">
-                      <h5 className="card-title">Pending Payments</h5>
-                      <p className="card-text display-4">{payments.pending}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-md-3">
-                  <div className="card text-center">
-                    <div className="card-body">
-                      <h5 className="card-title">Monthly Revenue</h5>
-                      <p className="card-text display-4">
-                        ₹{revenue.reduce((sum, r) => sum + r.revenue, 0)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Main Content */}
+      <div style={{ marginLeft: "250px", padding: "2rem", width: "100%" }}>
+        {/* Top Bar */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            marginBottom: "2rem",
+          }}
+        >
+          {/* Profile Dropdown */}
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="light"
+              id="dropdown-profile"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <FaUserCircle className="me-2" size={20} />
+              Admin
+            </Dropdown.Toggle>
 
-          {activeTab === "issues" && (
-            <div>
-              <h3>Issues Reported</h3>
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Issue</th>
-                    <th>Cabin Number</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {issues.map((issue, index) => (
-                    <tr key={index}>
-                      <td>{issue.issue}</td>
-                      <td>{issue.cabinNumber}</td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            issue.status === "resolved"
-                              ? "bg-success"
-                              : "bg-warning text-dark"
-                          }`}
-                        >
-                          {issue.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
 
-          {activeTab === "vacation-notices" && (
-            <div>
-              <h3>Vacation Notices</h3>
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>User Name</th>
-                    <th>Cabin Number</th>
-                    <th>Vacation Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vacationNotices.map((notice, index) => (
-                    <tr key={index}>
-                      <td>{notice.userName}</td>
-                      <td>{notice.cabinNumber}</td>
-                      <td>{notice.vacationDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </main>
+        {/* Render Content */}
+        {renderContent()}
       </div>
     </div>
   );
