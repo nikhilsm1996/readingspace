@@ -5,32 +5,32 @@ const Features = () => {
     {
       title: "Quiet Environment",
       description: "Enjoy a serene workspace free from distractions.",
-      image: "/path/to/quiet-environment.jpg",
+      image: "https://images.pexels.com/photos/8101057/pexels-photo-8101057.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
     {
       title: "Comfortable Seating",
       description: "Ergonomic chairs to keep you comfortable all day.",
-      image: "/path/to/comfortable-seating.jpg",
+      image: "https://images.pexels.com/photos/3952068/pexels-photo-3952068.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
     {
       title: "High-Speed WiFi",
       description: "Blazing fast internet for all your work needs.",
-      image: "/path/to/high-speed-wifi.jpg",
+      image: "https://images.pexels.com/photos/17775083/pexels-photo-17775083/free-photo-of-woman-hands-on-laptop.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
     {
       title: "Coffee Service",
       description: "Complimentary coffee to keep you energized.",
-      image: "/path/to/coffee-service.jpg",
+      image: "https://images.pexels.com/photos/28403017/pexels-photo-28403017/free-photo-of-cozy-reading-with-coffee-and-laptop-setup.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
     {
       title: "Study Desks",
       description: "Work at spacious and well-lit desks.",
-      image: "/path/to/study-desks.jpg",
+      image: "https://images.pexels.com/photos/5905435/pexels-photo-5905435.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
     {
       title: "Printing Service",
       description: "Print your documents at affordable rates.",
-      image: "/path/to/printing-service.jpg",
+      image: "https://images.pexels.com/photos/23534017/pexels-photo-23534017/free-photo-of-printer.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
   ];
 
