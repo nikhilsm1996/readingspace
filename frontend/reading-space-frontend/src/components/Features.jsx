@@ -32,6 +32,36 @@ const Features = () => {
       description: "Print your documents at affordable rates.",
       image: "https://images.pexels.com/photos/23534017/pexels-photo-23534017/free-photo-of-printer.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     },
+    {
+      title: "Noise-Cancelling Zones",
+      description: "Designated quiet areas with acoustic panels to block outside noise.",
+      image: "https://images.pexels.com/photos/4584387/pexels-photo-4584387.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
+    {
+      title: "Smart Book Locator",
+      description: "RFID-based system to locate books instantly through a mobile app.",
+      image: "https://images.pexels.com/photos/5757303/pexels-photo-5757303.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
+    {
+      title: "Live Author Sessions",
+      description: "Spaces equipped for virtual or in-person sessions with authors or experts.",
+      image: "https://images.pexels.com/photos/7260644/pexels-photo-7260644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
+    {
+      title: "On-Demand Tutors",
+      description: "Professional tutors available for academic assistance.",
+      image: "https://images.pexels.com/photos/6503153/pexels-photo-6503153.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
+    {
+      title: "Augmented Reality (AR) Experiences",
+      description: "Use AR glasses to explore interactive book content, such as historical recreations or animated stories.",
+      image: "https://images.pexels.com/photos/7887043/pexels-photo-7887043.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
+    {
+      title: "Loyalty Points Program",
+      description: "Earn points for book rentals, event participation, or purchases, redeemable for perks or discounts.",
+      image: "https://images.pexels.com/photos/5689440/pexels-photo-5689440.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
