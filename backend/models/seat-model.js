@@ -17,7 +17,7 @@ const seatsSchema = new Schema({
   },
   tier: {
     type:String,
-    enum: ['standard', 'premium'],
+    enum: ['standard', 'premium','supreme'],
     default:'standard',
     
   },
