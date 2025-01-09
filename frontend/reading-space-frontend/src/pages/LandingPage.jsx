@@ -1,22 +1,23 @@
+/* eslint-disable react/prop-types */
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import About from "../components/About";
 import Features from "../components/Features";
 import Pricing from "../components/Pricing";
 import Testimonials from "../components/Testimonials";
-import ContactForm from "../components/ContactForm";
+import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 
-const LandingPage = () => {
+const LandingPage = ({ theme, setTheme }) => {
   return (
     <>
-      <Navbar />
+      <Navbar theme={theme} setTheme={setTheme} />
       <Hero />
       <About />
       <Features />
       <Pricing />
       <Testimonials />
-      <ContactForm />
+      <Contact />
       <Footer />
     </>
   );

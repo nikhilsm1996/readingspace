@@ -1,4 +1,4 @@
-import "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -31,8 +31,15 @@ const Navbar = () => {
             )}
           </ul>
           <div className="d-flex gap-3">
-            <button className="btn btn-outline-primary fw-medium">Login</button>
-            <button className="btn btn-primary fw-medium">Sign Up</button>
+            {/* Login Button */}
+            <Link to="/login" className="btn btn-outline-primary fw-medium">
+              Login
+            </Link>
+
+            {/* Sign Up Button */}
+            <Link to="/signup" className="btn btn-primary fw-medium">
+              Sign Up
+            </Link>
           </div>
         </div>
       </div>
