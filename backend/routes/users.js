@@ -25,19 +25,23 @@ router.get('/', async (req, res) => {
 // CREATE A USER
 router.post('/', async (req, res) => {
   const { name, email, password, confirmPassword, role, phone } = req.body;
-
+  console.log("PWD",password)
+      console.log("CON PWD",confirmPassword)
   try {
     // Check if passwords match (additional validation)
     if (password !== confirmPassword) {
+      console.log("PWD",password)
+      console.log("CON PWD",confirmPassword)
       return res.status(400).json({ error: 'Password and confirm password must match' });
     }
+    console.log("PWD 2",password)
+    console.log("CON PWD 2",confirmPassword)
 
     // Create a new User object
     const newUser = new User({
       name,
       email,
       password,
-      confirmPassword,
       role,
       phone,
     });
@@ -53,14 +57,12 @@ router.post('/', async (req, res) => {
 //// UPDATE user by email
 router.put('/:email', async (req, res) => {
   const { email } = req.params;
-  const { name, phone, password, confirmPassword, role } = req.body;
+  const { name, phone, password, role } = req.body;
 
   try {
     console.log("inside try")
     // Check if password and confirm password match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'Password and confirm password must match' });
-    }
+    
 console.log("just before ops")
     // Find the user by email and update
     const updatedUser = await User.findOneAndUpdate(
@@ -76,7 +78,6 @@ console.log("just before ops")
 
     // Return the updated user data (excluding password)
     updatedUser.password = undefined;
-    updatedUser.confirmPassword = undefined;
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
