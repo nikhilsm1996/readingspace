@@ -7,6 +7,9 @@ var mongoose = require('mongoose')
 var cors = require('cors')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var seatRouter = require('./routes/seats')
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 var app = express();
 // Connect to MongoDB (replace with your own connection string)
@@ -27,6 +30,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/seats',seatRouter)
+
+const JWT_SECRET = '123456789ABCDEF'; // Use a secure secret key in production
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
