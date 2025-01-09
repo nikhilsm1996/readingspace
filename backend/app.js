@@ -4,12 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose')
-<<<<<<< HEAD
-var cors = require("cors");
-
-=======
 var cors = require('cors')
->>>>>>> b6e23fea3c87bf0a5b9367d137c78259e4d248ed
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var seatRouter = require('./routes/seats')
