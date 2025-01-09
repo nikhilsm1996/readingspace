@@ -2,10 +2,13 @@ var express = require('express');
 var router = express.Router();
 const Seats= require('../models/seat-model'); 
 const User= require('../models/registration-model');
+const isAuthenticated = require('../middlewares/auth');
+const isAdmin = require('../middlewares/adminAuth');
+
 console.log("in seats router")
 
 // Create Total Number of Cabins
-router.post('/', async (req, res) => {
+router.post('/',isAdmin, async (req, res) => {
   const { totalStandardSeats, totalPremiumSeats,totalSupremeSeats} = req.body;
 
     if (!totalStandardSeats || !totalPremiumSeats || !totalSupremeSeats) {
@@ -69,7 +72,7 @@ for (let i = startSupremeSeatNumber; i < startSupremeSeatNumber + totalSupremeSe
 
 
 ///GET COUNT OF VACANT,OCCUPIED,TOTAL SEATS
-router.get('/count', async (req, res) => {
+router.get('/count',isAuthenticated, async (req, res) => {
   try {
       // Standard seat counts
       const standardAvailableCount = await Seats.countDocuments({ tier: 'standard', status: 'vacant' });
@@ -117,7 +120,7 @@ const supremeOccupiedCount = await Seats.countDocuments({ tier: 'supreme', statu
 
 
 // Endpoint to get seat details by seat number
-router.get('/:seatNumber', async (req, res) => {
+router.get('/:seatNumber',isAdmin, async (req, res) => {
   const seatNumber = parseInt(req.params.seatNumber, 10);
 
   // Validate seat number
@@ -140,7 +143,7 @@ router.get('/:seatNumber', async (req, res) => {
 });
 
 
-router.post('/assign', async (req, res) => {
+router.post('/assign',isAuthenticated, async (req, res) => {
   const { email, seatNumber } = req.body;
 
   if (!email || !seatNumber ) {
