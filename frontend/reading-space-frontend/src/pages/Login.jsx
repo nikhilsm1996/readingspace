@@ -1,84 +1,126 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-let Login = () => {
-  const [loginData, setLoginData] = useState({
-    email: "",
-    password: "",
-  });
 
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    setLoginData({ ...loginData, [e.target.name]: e.target.value });
-  };
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  const handleLogin = () => {
-    console.log("Logging in with:", loginData);
-  };
+    const raw = JSON.stringify({
+      email: email,
+      password: password,
+    });
 
-  const goToSignup = () => {
-    navigate("/signup");
-  };
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
 
-  const goToForgotPassword = () => {
-    navigate("/forgot-password");
+    try {
+      const response = await fetch("http://localhost:3000/login", requestOptions);
+      const result = await response.json();
+
+      if (response.ok) {
+        if (result.role === "admin") {
+          navigate("/dashboard");
+        } else {
+          navigate("/seat-selection");
+        }
+      } else {
+        alert(result.message || "Invalid credentials");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   return (
-    <>
-      <h1>Welcome Back</h1>
-      <p>Please log in to your account</p>
-      <div>
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          value={loginData.email}
-          onChange={handleInputChange}
-        />
-        <br />
-        <label>Password</label>
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter your password"
-          value={loginData.password}
-          onChange={handleInputChange}
-        />
-        <br />
-        <br />
-        <button onClick={handleLogin}>Log In</button>
-        <div>
-          <p>
-            <span
-              onClick={goToForgotPassword}
-              style={{
-                color: "blue",
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              Forgot Password?
-            </span>
-          </p>
-          <p>
-            Don’t have an account?{" "}
-            <span
-              onClick={goToSignup}
-              style={{
-                color: "blue",
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
-            >
-              Sign up here
-            </span>
-          </p>
+    <div
+      className="d-flex justify-content-center align-items-center vh-100"
+      style={{
+        background: "linear-gradient(135deg, #f3f4f6, #e3e8ec)",
+      }}
+    >
+      <div className="row w-100 mx-0">
+        <div className="col-md-6 d-flex justify-content-center align-items-center">
+          <div
+            className="card shadow-lg p-4"
+            style={{ maxWidth: "400px", width: "100%", opacity: 0.95 }}
+          >
+            <div className="text-center mb-4">
+              <img
+                src="public/RS-Logo.png"
+                alt="Reading Space Logo"
+                className="img-fluid mb-3"
+                style={{ maxWidth: "80px" }}
+              />
+              <h3 className="text-primary">Welcome to Reading Space</h3>
+            </div>
+            <form onSubmit={handleLogin}>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="password" className="form-label">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="d-flex justify-content-between mb-3">
+                <a
+                  href="/forgot-password"
+                  className="text-decoration-none text-primary"
+                >
+                  Forgot Password?
+                </a>
+                <a href="/signup" className="text-decoration-none text-primary">
+                  New User? Signup
+                </a>
+              </div>
+              <button type="submit" className="btn btn-primary w-100">
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+        <div className="col-md-6 d-none d-md-flex justify-content-center align-items-center">
+          <img
+            src="https://images.pexels.com/photos/8532965/pexels-photo-8532965.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="Books"
+            className="img-fluid"
+            style={{ maxWidth: "80%", borderRadius: "10px" }}
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
