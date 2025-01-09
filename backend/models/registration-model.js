@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const bcrypt=require('bcryptjs')
 
-
-
+console.log("user model")
 // Create the User Schema
 const userSchema = new Schema({
   name: {
@@ -22,7 +22,6 @@ const userSchema = new Schema({
   },
   confirmPassword: {
     type: String,
-    required: true,
   },
   role: {
     type: String,
@@ -37,13 +36,17 @@ const userSchema = new Schema({
   },
 });
 
-// Define a pre-save hook to check if confirmPassword matches the password
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function (next) {
+  
   if (this.password !== this.confirmPassword) {
     return next(new Error('Password and confirm password must match'));
   }
+
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
 
 // Create the User model
 const UserModel = mongoose.model('User', userSchema);
