@@ -1,20 +1,32 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/registration-model'); // Path to your User model
 
-const JWT_SECRET = '123456789ABCDEF';  // Make sure to use a strong secret key
+const JWT_SECRET = '123456789ABCDEF'; // Replace with a secure key in production
 
-const authMiddleware = (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-        return res.status(401).json({ error: 'Access denied. No token provided.' });
-    }
-
+const isAuthenticated = async (req, res, next) => {
     try {
+        // Extract token from Authorization header
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ error: 'Access denied. No token provided.' });
+        }
+
+        // Verify the token
         const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = decoded; // You can access user information (e.g., req.user.userId)
+
+        // Fetch the user from the database
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(401).json({ error: 'User not found. Authentication failed.' });
+        }
+
+        // Attach user to request object
+        req.user = user;
         next();
     } catch (err) {
-        return res.status(400).json({ error: 'Invalid or expired token.' });
+        console.error(err);
+        res.status(401).json({ error: 'Invalid token or authentication failed.' });
     }
 };
 
-module.exports = authMiddleware;
+module.exports = isAuthenticated;
