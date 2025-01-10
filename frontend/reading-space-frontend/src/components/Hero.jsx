@@ -6,9 +6,12 @@ const Hero = () => {
     <section id="home" className="bg-light py-5 mt-5">
       <div className="container py-5">
         <div className="row align-items-center">
-          <div className="col-lg-5">
-            <h1 className="display-5 fw-bold">Welcome to ReadingSpace</h1>
-            <p className="lead">Your perfect reading environment awaits</p>
+          <div className="col-lg-6">
+          <h1 className="display-5 fw-bold" style={{ fontFamily: "Times new roman" }}>
+  Welcome to Reading Space
+</h1>
+
+            <p className="lead" style={{ fontFamily: "sans-serif_" }}>Your Perfect Reading Environment Awaits</p>
             
             {/* Link to /login page */}
             <Link to="/login">
