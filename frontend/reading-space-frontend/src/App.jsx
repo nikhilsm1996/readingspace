@@ -12,6 +12,7 @@ import AdminLayout from './components/AdminLayout';
 // import Dashboard from './components/Dashboard';
 // import TierManagement from './components/TierManagement';
 // import Settings from './components/Settings';
+import Forgotpassword from './pages/Forgotpassword';
 
 function App() {
   const [theme, setTheme] = useState('light');
@@ -36,6 +37,7 @@ function App() {
           {/* <Route path="profile" element={<Profile />} /> */}
           {/* <Route path="payment" element={<Payment />} /> */}
           {/* <Route path="settings" element={<Settings />} /> */}
+          <Route path="/forgot-password" element={<Forgotpassword />} />
         </Routes>
       </div>
     </Router>

@@ -3,7 +3,7 @@ const User = require('../models/registration-model'); // Path to your User model
 
 const JWT_SECRET = '123456789ABCDEF'; // Replace with a secure key in production
 
-const isAuthenticated = async (req, res, next) => {
+const isAdmin = async (req, res, next) => {
     try {
         // Extract token from Authorization header
         const token = req.headers.authorization?.split(' ')[1];
@@ -20,6 +20,11 @@ const isAuthenticated = async (req, res, next) => {
             return res.status(401).json({ error: 'User not found. Authentication failed.' });
         }
 
+        // Check if the user is an admin
+        if (user.role !== 'admin') {
+            return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+        }
+
         // Attach user to request object
         req.user = user;
         next();
@@ -29,4 +34,4 @@ const isAuthenticated = async (req, res, next) => {
     }
 };
 
-module.exports = isAuthenticated;
+module.exports = isAdmin;
