@@ -20,7 +20,7 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto gap-4">
-            {["Home", "About", "Features", "Pricing", "Contact", "Reviews"].map(
+            {["Home", "About", "Features", "Pricing", "Contact", "Reviews","Blog"].map(
               (section, index) => (
                 <li key={index} className="nav-item">
                   <a className="nav-link text-dark fw-medium" href={`#${section.toLowerCase()}`}>
