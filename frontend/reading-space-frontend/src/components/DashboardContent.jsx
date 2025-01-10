@@ -1,46 +1,71 @@
+const DashboardContent = ({ currentView }) => {
+  const users = [
+    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin' },
+    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User' },
+    { id: 3, name: 'Alice Johnson', email: 'alice@example.com', role: 'User' },
+  ];
 
-import { Card, Row, Col } from "react-bootstrap";
+  switch (currentView) {
+    case 'dashboard':
+      return (
+        <div className="row g-4">
+          <div className="col-md-6">
+            <div className="card h-100">
+              <div className="card-body">
+                <h3 className="card-title mb-4">Quick Stats</h3>
+                <div className="d-grid gap-3">
+                  <div className="p-3 bg-primary bg-opacity-10 rounded">
+                    <p className="text-primary mb-1">Total Users</p>
+                    <p className="h4 fw-bold">123</p>
+                  </div>
+                  <div className="p-3 bg-success bg-opacity-10 rounded">
+                    <p className="text-success mb-1">Active Bookings</p>
+                    <p className="h4 fw-bold">15</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
 
-const DashboardContent = () => {
-  return (
-    <div>
-      <h3 className="mb-4">Dashboard Overview</h3>
-      <Row>
-        <Col md={3}>
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Total Users</Card.Title>
-              <Card.Text>1,234</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Revenue</Card.Title>
-              <Card.Text>$12,345</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Active Projects</Card.Title>
-              <Card.Text>45</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="mb-4">
-            <Card.Body>
-              <Card.Title>Pending Tasks</Card.Title>
-              <Card.Text>12</Card.Text>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </div>
-  );
+    case 'users':
+      return (
+        <div className="card">
+          <div className="card-body">
+            <h3 className="card-title mb-4">Manage Users</h3>
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr key={user.id}>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>{user.role}</td>
+                      <td>
+                        <button className="btn btn-sm btn-primary me-2">Edit</button>
+                        <button className="btn btn-sm btn-danger">Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+
+    default:
+      return <div>Select a view from the sidebar.</div>;
+  }
 };
 
 export default DashboardContent;
