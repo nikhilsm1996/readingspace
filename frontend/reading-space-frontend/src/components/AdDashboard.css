@@ -1,0 +1,30 @@
+.performance-overview {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    height: 200px;
+  }
+  
+  .performance-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .bar {
+    width: 30px;
+    background-color: rgba(75, 192, 192, 1);
+    border: 1px solid rgba(0, 0, 0, 1);
+    border-radius: 5px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    padding: 2px;
+  }
+  
+  .label {
+    margin-top: 5px;
+    font-size: 14px;
+  }
