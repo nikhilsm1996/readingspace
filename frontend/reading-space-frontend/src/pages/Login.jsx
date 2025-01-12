@@ -27,10 +27,11 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:3000/login", requestOptions);
       const result = await response.json();
+console.log("Result",result);
 
       if (response.ok) {
-        if (result.role === "admin") {
-          navigate("/dashboard");
+        if (result.user.role === "admin") {
+          navigate("/admin");
         } else {
           navigate("/seat-selection");
         }
