@@ -1,0 +1,24 @@
+.seat {
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.seat.vacant {
+  background-color: gray;
+}
+
+.seat.blocked {
+  background-color: black;
+  color: white;
+}
+
+.seat:hover {
+  opacity: 0.8;
+}
