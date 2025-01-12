@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const User= require('../models/registration-model');
-
+const Tier= require('../models/tier-model');
 
 console.log("in seat model")
 // Create the Seat  Schema
 const seatsSchema = new Schema({
   seatNumber: {
-    type: Number,
+    type: String,
   },
   status: {
     type:String,
@@ -16,16 +16,23 @@ const seatsSchema = new Schema({
     
   },
   tier: {
-    type:String,
-    enum: ['standard', 'premium','supreme'],
-    default:'standard',
-    
+    type: mongoose.Schema.Types.ObjectId,
+    ref:Tier, // Reference to the Tier collection
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true // Ensure every seat has a price
+  },
+  deposit: {
+    type: Number,
+    default: 0 // Optional field for deposit
   },
   userEmail:{
     type:String,
     ref:User,
     default:null,
-    unique: true, // Ensure email is unique across seats
+  
         sparse: true  // Allows null values for unassigned seats
   },
   userName:{
