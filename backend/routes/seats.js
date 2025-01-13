@@ -319,7 +319,7 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
 });
 
 
-//Assign seat to a user
+// Assign seat to a user
 router.post('/assign', isAuthenticated, async (req, res) => {
     const { email, seatNumber } = req.body;
   
@@ -358,9 +358,14 @@ router.post('/assign', isAuthenticated, async (req, res) => {
       seat.status = 'blocked';
       seat.userEmail = user.email;
       seat.userName = user.name;
-  
       await seat.save();
   
+      // Update the user's seatAssigned field
+      user.seatAssigned = true;
+      await user.save();
+  
+
+      console.log("USER OBJECT",user)
       res.status(200).json({
         message: `Seat ${seatNumber} successfully assigned to ${email}.`,
         seat: {
@@ -372,6 +377,11 @@ router.post('/assign', isAuthenticated, async (req, res) => {
           price: seat.price,
           deposit: seat.deposit,
         },
+        user: {
+          email: user.email,
+          name: user.name,
+          seatAssigned: user.seatAssigned, // Include the seatAssigned field
+        },
       });
     } catch (err) {
       console.error(err);
@@ -380,6 +390,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
   });
   
 
+// Route to change the status of a seat based on seatNumber and new status
 // Route to change the status of a seat based on seatNumber and new status
 router.put('/status/:seatNumber', async (req, res) => {
     const { seatNumber } = req.params; // Extract seatNumber from URL params
@@ -405,7 +416,33 @@ router.put('/status/:seatNumber', async (req, res) => {
   
       // Update the seat status
       seat.status = status;
-  
+
+      // If the seat is being blocked, assign it to a user if available
+      if (status === 'blocked' && seat.userEmail) {
+        // Optionally, check if the user already has a seat assigned
+        const user = await User.findOne({ email: seat.userEmail });
+        if (user) {
+          user.seatAssigned = true; // Set seatAssigned to true when a seat is blocked
+          await user.save();
+        }
+      }
+      
+      // If the seat is being marked as vacant, reset seatAssigned and clear userEmail and userName
+      if (status === 'vacant') {
+        // Reset seatAssigned for the user if the seat is being made vacant
+        if (seat.userEmail) {
+          const user = await User.findOne({ email: seat.userEmail });
+          if (user) {
+            user.seatAssigned = false;
+            await user.save();
+          }
+        }
+
+        // Clear userEmail and userName in the seat when it becomes vacant
+        seat.userEmail = " ";
+        seat.userName = " ";
+      }
+
       // Save the updated seat
       await seat.save();
   
@@ -417,9 +454,37 @@ router.put('/status/:seatNumber', async (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'An error occurred while updating the seat status.' });
     }
+});
+
+
+//Delete all seats
+router.delete('/deleteall', isAdmin, async (req, res) => {
+    try {
+      // Find all users with seat assigned and update their seatAssigned field to false
+      const usersWithAssignedSeats = await User.updateMany(
+        { seatAssigned: true }, // Find users who have assigned seats
+        { $set: { seatAssigned: false, seat: null } } // Set seatAssigned to false and nullify seat
+      );
+  
+      console.log('Updated Users:', usersWithAssignedSeats);
+  
+      // Delete all seats in the Seats collection
+      const deletedSeats = await Seats.deleteMany({});
+  
+      console.log('Deleted Seats:', deletedSeats);
+  
+      // Return success response
+      res.status(200).json({
+        message: 'All seats deleted and seatAssigned flag updated for users.',
+        deletedSeats: deletedSeats.deletedCount,
+        updatedUsers: usersWithAssignedSeats.nModified,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred while deleting the seats and updating users.' });
+    }
   });
   
-
 
 
 
