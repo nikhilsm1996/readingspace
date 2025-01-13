@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var seatRouter = require('./routes/seats')
 var loginRouter = require('./routes/login')
+var tierRouter = require('./routes/tier')
 var app = express();
 
 // Connect to MongoDB (replace with your own connection string)
@@ -31,7 +32,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/seats',seatRouter)
 app.use('/login',loginRouter)
-
+app.use('/tier',tierRouter)
 
 
 
