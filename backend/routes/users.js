@@ -6,15 +6,10 @@ const isAdmin = require('../middlewares/adminAuth');
 console.log("in user router")
 
 //Get the List of all Users
-router.get('/', isAdmin,async (req, res) => {
+router.get('/', isAdmin, async (req, res) => {
   try {
-    // Use Mongoose's find method to fetch all users
-    const users = await User.find();
-
-    // Remove sensitive data (like password) from each user
-    users.forEach((user) => {
-      user.password = undefined;
-    });
+    // Fetch all users and exclude password field using `.select('-password')`
+    const users = await User.find().select('-password');
 
     // Return the list of users
     res.status(200).json(users);
@@ -22,6 +17,27 @@ router.get('/', isAdmin,async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+//Get Single User by Email ID
+router.get('/email/:email', isAdmin, async (req, res) => {
+  const { email } = req.params; // Get the email from the request parameters
+
+  try {
+    // Find the user by email and exclude the password field
+    const user = await User.findOne({ email }).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Return the user details
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 
 // CREATE A USER
