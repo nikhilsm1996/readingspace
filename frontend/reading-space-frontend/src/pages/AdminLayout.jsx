@@ -31,8 +31,8 @@ const AdminLayout = () => {
           width: isCollapsed ? 'calc(100% - 80px)' : 'calc(100% - 250px)',
           minHeight: '100vh',
           padding: '20px',
-          marginTop: '0', // Remove margin above the content
-          overflowY: 'auto', // Allow content to scroll if it's long
+          marginTop: '0', 
+          overflowY: 'auto', 
         }}
       >
         <Outlet />

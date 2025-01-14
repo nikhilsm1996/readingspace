@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route ,Navigate} from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -21,6 +21,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<Navigate to="Dashboard" />} />
+          <Route path="/admin" element={<AdDashboard />} />
           <Route path="dashboard" element={<AdDashboard />} />
           <Route path="tier-management" element={<TierManagement />} />
           <Route path="user" element={<AdUser />} />
