@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var seatRouter = require('./routes/seats')
 var loginRouter = require('./routes/login')
 var tierRouter = require('./routes/tier')
+var paymentRouter = require('./routes/payment')
 var app = express();
 
 // Connect to MongoDB (replace with your own connection string)
@@ -33,6 +34,7 @@ app.use('/users', usersRouter);
 app.use('/seats',seatRouter)
 app.use('/login',loginRouter)
 app.use('/tier',tierRouter)
+app.use('/payment',paymentRouter)
 
 
 
