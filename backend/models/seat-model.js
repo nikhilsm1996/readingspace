@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Tier = require('../models/tier-model'); // Correct path for Tier model
 const User = require('../models/registration-model'); // Correct path for User model
-const Tier = require('../models/tier-model');
 
 // Create the Seat Schema
 const seatsSchema = new Schema({
@@ -12,11 +12,11 @@ const seatsSchema = new Schema({
   status: {
     type: String,
     enum: ['vacant', 'blocked'],
-    default: 'vacant',
+    default: 'vacant', // Default status for new seats
   },
   tier: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: Tier, // Reference to the Tier collection
+    ref: 'Tier', // Reference to the Tier collection
     required: true,
   },
   price: {
@@ -29,13 +29,9 @@ const seatsSchema = new Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId, // Reference to the User model
-    ref: 'User', // Correct reference to the User model
+    ref: 'User', // Indicates the user assigned to the seat
     default: null, // Default to null if no user is assigned
   },
-  seatAssigned: {
-    type: Boolean,
-    default: false, // Default to false if no user is assigned
-  }
 });
 
 // Create the Seats model
