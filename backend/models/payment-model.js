@@ -4,12 +4,12 @@ const Schema = mongoose.Schema;
 const paymentSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
+    ref: 'User',
     required: true,
   },
   seat: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Seats', // Reference to the Seat model
+    ref: 'Seats',
     required: true,
   },
   paymentMethod: {
@@ -29,6 +29,10 @@ const paymentSchema = new Schema({
     type: Date,
     default: null,
   },
+  nextPaymentDueDate: {
+    type: Date,
+    default: null,
+  },
   deposit: {
     type: Number,
     default: 0,
@@ -40,7 +44,7 @@ const paymentSchema = new Schema({
   totalAmount: {
     type: Number,
     required: true,
-  }, // Total amount to be paid (price + deposit)
+  },
   paymentStatus: {
     type: String,
     enum: ['processing', 'completed', 'failed'],
@@ -58,7 +62,7 @@ const paymentSchema = new Schema({
   },
 });
 
-// Create the Payment model
 const PaymentModel = mongoose.model('Payment', paymentSchema);
 
 module.exports = PaymentModel;
+
