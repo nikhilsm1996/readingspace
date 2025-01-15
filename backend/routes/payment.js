@@ -3,68 +3,104 @@ const router = express.Router();
 const PaymentModel = require('../models/payment-model');
 const Seats = require('../models/seat-model');
 const User = require('../models/registration-model'); // Assuming you have a User model
+const Tier= require('../models/tier-model')
 
-//payment route to start a payment
 router.post('/start-payment', async (req, res) => {
-    const { email, paymentMethod } = req.body;
+  const { email, paymentMethod } = req.body;
 
-    if (!email || !paymentMethod) {
-      return res.status(400).json({ error: 'Email and payment method are required.' });
+  if (!email || !paymentMethod) {
+    return res.status(400).json({ error: 'Email and payment method are required.' });
+  }
+
+  try {
+    // Fetch user and their assigned seat, populate seat details
+    const user = await User.findOne({ email }).populate({
+      path: 'seat',
+      populate: {
+        path: 'tier', // Populate tier to get tier details
+        select: 'name' // Only select tier name to avoid over-fetching data
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
     }
 
-    try {
-      // Find the user by email
-      const user = await User.findOne({ email }).populate('seat');
-      if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
-
-      // Ensure the user has a seat assigned
-      const seat = user.seat;
-      if (!seat) {
-        return res.status(400).json({ error: 'No seat assigned to this user.' });
-      }
-
-      // Calculate the payment amount (considering deposit for first payment)
-      const isFirstPayment = !(await PaymentModel.findOne({ user: user._id }));
-      const deposit = isFirstPayment ? seat.deposit : 0;
-      const amount = seat.price + deposit;
-
-      // Create a new payment record with the totalAmount
-      const newPayment = new PaymentModel({
-        user: user._id,
-        seat: seat._id,
-        paymentMethod,
-        price: seat.price,
-        deposit,
-        totalAmount: amount, // Store the total amount
-        paymentDate: new Date(), // Set the current date
-        paymentInitiated: true, // Set paymentInitiated flag to true
-        paymentStatus: 'processing', // Set paymentStatus to "processing"
-        transactionId: `TXN-${Date.now()}`, // Unique transaction ID
-      });
-
-      await newPayment.save();
-
-      res.status(200).json({
-        message: 'Payment initiated successfully.',
-        payment: {
-          transactionId: newPayment.transactionId,
-          price:newPayment.price,
-          deposit:newPayment.deposit,
-          totalAmount: newPayment.totalAmount, // Include totalAmount in the response
-          paymentMethod: newPayment.paymentMethod,
-          paymentInitiated: newPayment.paymentInitiated,
-          paymentDate: newPayment.paymentDate,
-          paymentStatus: newPayment.paymentStatus,
-        },
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'An error occurred while initiating the payment.' });
+    const seat = user.seat;
+    if (!seat) {
+      return res.status(400).json({ error: 'No seat assigned to this user.' });
     }
+
+    // Find the last payment of the user
+    const lastPayment = await PaymentModel.findOne({ user: user._id }).sort({ paymentDate: -1 });
+
+    // Determine if this is the first payment
+    const isFirstPayment = !lastPayment;
+    const deposit = isFirstPayment ? seat.deposit : 0;
+    const amount = seat.price + deposit;
+
+    let nextPaymentDueDate;
+
+    if (isFirstPayment) {
+      // First payment logic: set the due date 30 days from now
+      nextPaymentDueDate = new Date();
+      nextPaymentDueDate.setDate(nextPaymentDueDate.getDate() + 30);
+    } else {
+      // Handle subsequent payments
+      const dueDate = lastPayment.nextPaymentDueDate || new Date();
+      const paymentDate = new Date();
+
+      if (paymentDate > dueDate) {
+        // If payment is past due, reset due date to 30 days from the previous due date
+        nextPaymentDueDate = new Date(dueDate);
+        nextPaymentDueDate.setDate(nextPaymentDueDate.getDate() + 30);
+      } else {
+        // If payment is within the current due period, set due date 30 days from today
+        nextPaymentDueDate = new Date(paymentDate);
+        nextPaymentDueDate.setDate(nextPaymentDueDate.getDate() + 30);
+      }
+    }
+
+    // Create a new payment record
+    const newPayment = new PaymentModel({
+      user: user._id,
+      seat: seat._id,
+      paymentMethod,
+      price: seat.price,
+      deposit,
+      totalAmount: amount,
+      paymentDate: new Date(),
+      paymentInitiated: true,
+      paymentStatus: 'processing', // Set initial payment status as 'processing'
+      transactionId: `TXN-${Date.now()}`,
+      nextPaymentDueDate,
+    });
+
+    // Save the payment record
+    await newPayment.save();
+
+    // Response to client with populated seat and tier details
+    res.status(200).json({
+      message: 'Payment initiated successfully.',
+      payment: {
+        transactionId: newPayment.transactionId,
+        price: newPayment.price,
+        deposit: newPayment.deposit,
+        totalAmount: newPayment.totalAmount,
+        paymentMethod: newPayment.paymentMethod,
+        paymentInitiated: newPayment.paymentInitiated,
+        paymentDate: newPayment.paymentDate,
+        nextPaymentDueDate: newPayment.nextPaymentDueDate,
+        paymentStatus: newPayment.paymentStatus,
+        seatNumber: seat.seatNumber, // Seat number from populated seat
+        tier: seat.tier ? seat.tier.name : 'Unknown', // Tier name from populated tier
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while initiating the payment.' });
+  }
 });
-
 
 
 
@@ -101,10 +137,10 @@ router.put('/confirm-payment', async (req, res) => {
       payment.paymentCompleted = paymentCompleted;
       await payment.save();
   
-      // Optionally, update the associated seat as occupied
+      // Optionally, update the associated seat as booked
       const seat = await Seats.findById(payment.seat);
       if (seat) {
-        seat.status = 'blocked'; // Mark the seat as occupied
+        seat.status = 'booked'; // Mark the seat as booked
         seat.paymentStatus = 'completed'; // Set seat payment status as completed
         seat.seatAssigned = true; // The seat is now assigned
         await seat.save();
@@ -134,38 +170,51 @@ router.put('/confirm-payment', async (req, res) => {
 
 // Route for admin to get payments by status
 router.get('/', async (req, res) => {
-    const { status } = req.query; // Get the payment status from query parameters (e.g., 'processing', 'completed', 'failed')
-  
-    // Check for invalid status
-    if (status && !['processing', 'completed', 'failed'].includes(status)) {
-      return res.status(400).json({ error: 'Invalid status. Allowed values: processing, completed, failed' });
+  const { status } = req.query; // Get the payment status from query parameters (e.g., 'processing', 'completed', 'failed')
+
+  // Check for invalid status
+  if (status && !['processing', 'completed', 'failed'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status. Allowed values: processing, completed, failed' });
+  }
+
+  try {
+    // Find payments by the given status, or fetch all if no status is provided
+    //NOTE : ONLY NESTED POPULATE WORKS
+    const payments = await PaymentModel.find(status ? { paymentStatus: status } : {})
+      .populate({
+        path: 'seat',
+        populate: {
+          path: 'tier',
+          select: 'name', // Only select the tier name
+        },
+      })
+      .populate('user');  // Populating the user information as well
+
+    if (payments.length === 0) {
+      return res.status(404).json({ message: 'No payments found.' });
     }
-  
-    try {
-      // Find payments by the given status, or fetch all if no status is provided
-      const payments = await PaymentModel.find(status ? { paymentStatus: status } : {})
-        .populate('seat')
-        .populate('user');
-  
-      if (payments.length === 0) {
-        return res.status(404).json({ message: 'No payments found.' });
-      }
-  
-      res.status(200).json({
-        message: 'Payments retrieved successfully.',
-        payments: payments.map(payment => ({
-          transactionId: payment.transactionId,
-          paymentStatus: payment.paymentStatus,
-          totalAmount: payment.totalAmount,
-          userEmail: payment.user.email,
-          seatNumber: payment.seat.seatNumber,
-        })),
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'An error occurred while fetching payments.' });
-    }
-  });
+
+    res.status(200).json({
+      message: 'Payments retrieved successfully.',
+      payments: payments.map(payment => ({
+        transactionId: payment.transactionId,
+        paymentStatus: payment.paymentStatus,
+        totalAmount: payment.totalAmount,
+        userEmail: payment.user.email,
+        seatNumber: payment.seat.seatNumber,
+        paymentDate: payment.paymentDate,
+        tierName: payment.seat.tier ? payment.seat.tier.name : 'No Tier', // Ensure tier is included
+      })),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while fetching payments.' });
+  }
+});
+
+
+
+
   
 
 
