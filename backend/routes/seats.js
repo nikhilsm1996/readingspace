@@ -281,6 +281,7 @@ router.get('/count', isAuthenticated, async (req, res) => {
 //get total count of all tiers
 
 // Get the total number of seats for a specific tier (standard, premium, supreme)
+// Get the total number of seats, price, and deposit for a specific tier (standard, premium, supreme)
 router.get('/totalcount/:tier', isAuthenticated, async (req, res) => {
   try {
       const { tier } = req.params;  // Get the tier from the URL parameter
@@ -290,7 +291,7 @@ router.get('/totalcount/:tier', isAuthenticated, async (req, res) => {
           return res.status(400).json({ error: 'Invalid tier. Please choose from standard, premium, or supreme.' });
       }
 
-      const seatCount = await Seats.aggregate([
+      const seatData = await Seats.aggregate([
           {
               $lookup: {
                   from: 'tiers',  // Name of the Tier collection in MongoDB
@@ -313,23 +314,30 @@ router.get('/totalcount/:tier', isAuthenticated, async (req, res) => {
           {
               $group: {
                   _id: null,  // Group all results together
-                  totalSeats: { $sum: 1 }  // Count the total number of seats
+                  totalSeats: { $sum: 1 },  // Count the total number of seats
+                  price: { $first: '$price' },  // Get the price of the first seat (all should be the same price)
+                  deposit: { $first: '$deposit' }  // Get the deposit of the first seat (all should be the same deposit)
               }
           }
       ]);
 
-      // If no seats are found for the selected tier, seatCount will be an empty array
-      if (seatCount.length === 0) {
+      // If no seats are found for the selected tier, seatData will be an empty array
+      if (seatData.length === 0) {
           return res.status(404).json({ message: `No ${tier} seats found.` });
       }
 
-      // Send the total number of seats for the selected tier
-      res.status(200).json({ [`total${tier.charAt(0).toUpperCase() + tier.slice(1)}Seats`]: seatCount[0].totalSeats });
+      // Send the total number of seats, price, and deposit for the selected tier
+      res.status(200).json({
+          [`total${tier.charAt(0).toUpperCase() + tier.slice(1)}Seats`]: seatData[0].totalSeats,
+          [`${tier}Price`]: seatData[0].price,
+          [`${tier}Deposit`]: seatData[0].deposit
+      });
   } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'An error occurred while fetching seat count.' });
+      res.status(500).json({ error: 'An error occurred while fetching seat count and pricing.' });
   }
 });
+
 
 
 
