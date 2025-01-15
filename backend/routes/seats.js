@@ -318,6 +318,40 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
     }
 });
 
+// Endpoint to get all seat details
+router.get('/', isAdmin, async (req, res) => {
+  try {
+      // Find all seats and populate the tier and user details
+      const seats = await Seats.find()
+          .populate('tier', 'name') // Populate tier name
+          .populate('user', 'name email phone'); // Populate user details from User model (using the user reference)
+
+      if (seats.length === 0) {
+          return res.status(404).json({ error: 'No seats found.' });
+      }
+
+      // Map over the seats to return the necessary information
+      const seatDetails = seats.map(seat => ({
+          seatNumber: seat.seatNumber,
+          status: seat.status,
+          tier: seat.tier ? seat.tier.name : 'Unknown', // Include the tier name
+          price: seat.price,
+          deposit: seat.deposit,
+          user: seat.user ? {
+              name: seat.user.name,  // Populated user name
+              email: seat.user.email, // Populated user email
+              phone: seat.user.phone  // Populated user phone number
+          } : null
+      }));
+
+      res.json(seatDetails);
+  } catch (err) {
+      console.error('Error retrieving seats:', err);
+      res.status(500).json({ error: 'An error occurred while retrieving the seats.' });
+  }
+});
+
+
 
 // Assign seat to a user
 router.post('/assign', isAuthenticated, async (req, res) => {
