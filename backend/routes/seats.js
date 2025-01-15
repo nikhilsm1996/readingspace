@@ -239,6 +239,9 @@ router.get('/count', isAuthenticated, async (req, res) => {
                     vacant: {
                         $sum: { $cond: [{ $eq: ['$status', 'vacant'] }, 1, 0] }
                     },
+                    booked: {
+                      $sum: { $cond: [{ $eq: ['$status', 'booked'] }, 1, 0] }
+                  },
                     blocked: {
                         $sum: { $cond: [{ $eq: ['$status', 'blocked'] }, 1, 0] }
                     }
@@ -247,22 +250,25 @@ router.get('/count', isAuthenticated, async (req, res) => {
         ]);
 
         const countResult = {
-            standard: { vacant: 0, blocked: 0 },
-            premium: { vacant: 0, blocked: 0 },
-            supreme: { vacant: 0, blocked: 0 },
-            total: { vacant: 0, blocked: 0 }
+            standard: { vacant: 0,booked:0, blocked: 0 },
+            premium: { vacant: 0,booked:0, blocked: 0 },
+            supreme: { vacant: 0,booked:0, blocked: 0 },
+            total: { vacant: 0,booked:0, blocked: 0 }
         };
 
         // Populate counts by tier
         seatCounts.forEach(item => {
             if (item._id === 'standard') {
                 countResult.standard.vacant = item.vacant;
+                countResult.standard.booked = item.booked;
                 countResult.standard.blocked = item.blocked;
             } else if (item._id === 'premium') {
                 countResult.premium.vacant = item.vacant;
+                countResult.premium.booked = item.booked;
                 countResult.premium.blocked = item.blocked;
             } else if (item._id === 'supreme') {
                 countResult.supreme.vacant = item.vacant;
+                countResult.supreme.booked = item.booked;
                 countResult.supreme.blocked = item.blocked;
             }
         });
@@ -270,6 +276,8 @@ router.get('/count', isAuthenticated, async (req, res) => {
         // Sum the total counts
         countResult.total.vacant = countResult.standard.vacant + countResult.premium.vacant + countResult.supreme.vacant;
         countResult.total.blocked = countResult.standard.blocked + countResult.premium.blocked + countResult.supreme.blocked;
+        countResult.total.booked = countResult.standard.booked + countResult.premium.booked + countResult.supreme.booked;
+
 
         res.status(200).json(countResult);
     } catch (err) {
@@ -278,10 +286,9 @@ router.get('/count', isAuthenticated, async (req, res) => {
     }
 });
 
-//get total count of all tiers
 
-// Get the total number of seats for a specific tier (standard, premium, supreme)
 // Get the total number of seats, price, and deposit for a specific tier (standard, premium, supreme)
+//along with price and deposit
 router.get('/totalcount/:tier', isAuthenticated, async (req, res) => {
   try {
       const { tier } = req.params;  // Get the tier from the URL parameter
@@ -432,7 +439,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     }
 
     // Assign the seat to the user
-    seat.status = 'blocked';
+    seat.status = 'booked';
     seat.user = user._id;
     await seat.save();
 
@@ -472,8 +479,8 @@ router.put('/status/:seatNumber', async (req, res) => {
     const { status } = req.body; // Extract new status from the request body
   
     // Validate status input
-    if (!status || !['blocked', 'vacant'].includes(status)) {
-      return res.status(400).json({ error: 'Invalid status. Status must be "blocked" or "vacant".' });
+    if (!status || !['blocked','booked', 'vacant'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Status must be "blocked", "booked" or "vacant".' });
     }
   
     try {
@@ -492,12 +499,12 @@ router.put('/status/:seatNumber', async (req, res) => {
       // Update the seat status
       seat.status = status;
 
-      // If the seat is being blocked, assign it to a user if available
-      if (status === 'blocked' && seat.userEmail) {
+      // If the seat is being booked, assign it to a user if available
+      if (status === 'booked' && seat.userEmail) {
         // Optionally, check if the user already has a seat assigned
         const user = await User.findOne({ email: seat.userEmail });
         if (user) {
-          user.seatAssigned = true; // Set seatAssigned to true when a seat is blocked
+          user.seatAssigned = true; // Set seatAssigned to true when a seat is booked
           await user.save();
         }
       }
