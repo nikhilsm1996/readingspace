@@ -318,41 +318,26 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
     }
 });
 
-// Endpoint to get all seat details
+// Endpoint to get all seats with their details
 router.get('/', isAdmin, async (req, res) => {
   try {
-      // Find all users and populate the seat, tier, and user details
-      const users = await User.find()
-          .populate('seat')  // Populate the seat object, which should include its details
-          .populate('seat.tier', 'name') // Populate the tier name in the seat object
-          .populate('seat.user', 'name email phone'); // Populate user details inside seat object
+    // Find all seats and populate the related tier and user details
+    const seats = await Seats.find()
+      .populate('tier', 'name') // Populate the tier field and fetch only the name
+      .populate('user', 'name email phone'); // Populate the user field with specific fields
 
-      if (users.length === 0) {
-          return res.status(404).json({ error: 'No users found.' });
-      }
+    if (seats.length === 0) {
+      return res.status(404).json({ error: 'No seats found.' });
+    }
 
-      // Send back users with populated seat details
-      const usersWithSeats = users.map(user => ({
-          ...user.toObject(), // Convert user to plain object
-          seat: user.seat ? {
-              seatNumber: user.seat.seatNumber,
-              status: user.seat.status,
-              tier: user.seat.tier ? user.seat.tier.name : 'Unknown', // Tier name
-              user: user.seat.user ? {
-                  name: user.seat.user.name,
-                  email: user.seat.user.email,
-                  phone: user.seat.user.phone
-              } : 'Not Assigned'
-          } : "No Seat Assigned"
-      }));
-
-      res.json(usersWithSeats);  // Return users with populated seat details
+    res.status(200).json(seats); // Send the populated seats data
   } catch (err) {
-      console.error('Error retrieving users:', err);
-      res.status(500).json({ error: 'An error occurred while retrieving the users.' });
+    console.error('Error retrieving seats:', err);
+    res.status(500).json({ error: 'An error occurred while retrieving seats.' });
   }
 });
-;
+
+
 
 
 
