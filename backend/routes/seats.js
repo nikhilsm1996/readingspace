@@ -278,7 +278,59 @@ router.get('/count', isAuthenticated, async (req, res) => {
     }
 });
 
-  
+//get total count of all tiers
+
+// Get the total number of seats for a specific tier (standard, premium, supreme)
+router.get('/totalcount/:tier', isAuthenticated, async (req, res) => {
+  try {
+      const { tier } = req.params;  // Get the tier from the URL parameter
+
+      // Validate the tier parameter to make sure it's one of the valid values
+      if (!['standard', 'premium', 'supreme'].includes(tier)) {
+          return res.status(400).json({ error: 'Invalid tier. Please choose from standard, premium, or supreme.' });
+      }
+
+      const seatCount = await Seats.aggregate([
+          {
+              $lookup: {
+                  from: 'tiers',  // Name of the Tier collection in MongoDB
+                  localField: 'tier',  // Reference to Tier's ObjectId in the Seats collection
+                  foreignField: '_id',  // Tier's ObjectId field
+                  as: 'tierDetails'  // Alias for the populated data
+              }
+          },
+          {
+              $unwind: {
+                  path: '$tierDetails',  // Unwind the populated tier data
+                  preserveNullAndEmptyArrays: true  // Prevent breaking if no tier is found
+              }
+          },
+          {
+              $match: {
+                  'tierDetails.name': tier  // Match the provided tier in the URL parameter
+              }
+          },
+          {
+              $group: {
+                  _id: null,  // Group all results together
+                  totalSeats: { $sum: 1 }  // Count the total number of seats
+              }
+          }
+      ]);
+
+      // If no seats are found for the selected tier, seatCount will be an empty array
+      if (seatCount.length === 0) {
+          return res.status(404).json({ message: `No ${tier} seats found.` });
+      }
+
+      // Send the total number of seats for the selected tier
+      res.status(200).json({ [`total${tier.charAt(0).toUpperCase() + tier.slice(1)}Seats`]: seatCount[0].totalSeats });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred while fetching seat count.' });
+  }
+});
+
 
 
 
