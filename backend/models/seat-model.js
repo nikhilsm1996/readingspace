@@ -11,7 +11,7 @@ const seatsSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ['vacant', 'blocked'],
+    enum: ['vacant','booked', 'blocked'],
     default: 'vacant', // Default status for new seats
   },
   tier: {
