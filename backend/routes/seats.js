@@ -321,35 +321,38 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
 // Endpoint to get all seat details
 router.get('/', isAdmin, async (req, res) => {
   try {
-      // Find all seats and populate the tier and user details
-      const seats = await Seats.find()
-          .populate('tier', 'name') // Populate tier name
-          .populate('user', 'name email phone'); // Populate user details from User model (using the user reference)
+      // Find all users and populate the seat, tier, and user details
+      const users = await User.find()
+          .populate('seat')  // Populate the seat object, which should include its details
+          .populate('seat.tier', 'name') // Populate the tier name in the seat object
+          .populate('seat.user', 'name email phone'); // Populate user details inside seat object
 
-      if (seats.length === 0) {
-          return res.status(404).json({ error: 'No seats found.' });
+      if (users.length === 0) {
+          return res.status(404).json({ error: 'No users found.' });
       }
 
-      // Map over the seats to return the necessary information
-      const seatDetails = seats.map(seat => ({
-          seatNumber: seat.seatNumber,
-          status: seat.status,
-          tier: seat.tier ? seat.tier.name : 'Unknown', // Include the tier name
-          price: seat.price,
-          deposit: seat.deposit,
-          user: seat.user ? {
-              name: seat.user.name,  // Populated user name
-              email: seat.user.email, // Populated user email
-              phone: seat.user.phone  // Populated user phone number
-          } : null
+      // Send back users with populated seat details
+      const usersWithSeats = users.map(user => ({
+          ...user.toObject(), // Convert user to plain object
+          seat: user.seat ? {
+              seatNumber: user.seat.seatNumber,
+              status: user.seat.status,
+              tier: user.seat.tier ? user.seat.tier.name : 'Unknown', // Tier name
+              user: user.seat.user ? {
+                  name: user.seat.user.name,
+                  email: user.seat.user.email,
+                  phone: user.seat.user.phone
+              } : 'Not Assigned'
+          } : "No Seat Assigned"
       }));
 
-      res.json(seatDetails);
+      res.json(usersWithSeats);  // Return users with populated seat details
   } catch (err) {
-      console.error('Error retrieving seats:', err);
-      res.status(500).json({ error: 'An error occurred while retrieving the seats.' });
+      console.error('Error retrieving users:', err);
+      res.status(500).json({ error: 'An error occurred while retrieving the users.' });
   }
 });
+;
 
 
 
