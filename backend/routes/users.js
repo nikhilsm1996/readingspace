@@ -7,12 +7,19 @@ console.log("in user router")
 
 //Get the List of all Users
 // Get the List of all Users with populated seat details
+// Get the List of all Users with populated seat details
 router.get('/', isAdmin, async (req, res) => {
   try {
-    // Fetch all users and populate the seat details
+    // Fetch all users and populate the seat and tier details
     const users = await User.find()
-      .populate('seat')  // Populate the seat object, which should include its details
-      .populate('seat.tier', 'name')  // Populate the tier name in the seat object
+      .populate({
+        path: 'seat',  // Populating the seat field
+        populate: {
+          path: 'tier',  // Populating the tier field within the seat
+          select: 'name'  // Only selecting the tier's name field
+        }
+      })
+      .select('-password');  // Optionally, exclude password field
 
     // Return the list of users with populated seat details
     res.status(200).json(users);
@@ -20,6 +27,7 @@ router.get('/', isAdmin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 
 //Get Single User by Email ID
