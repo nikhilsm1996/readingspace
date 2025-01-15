@@ -6,17 +6,21 @@ const isAdmin = require('../middlewares/adminAuth');
 console.log("in user router")
 
 //Get the List of all Users
+// Get the List of all Users with populated seat details
 router.get('/', isAdmin, async (req, res) => {
   try {
-    // Fetch all users and exclude password field using `.select('-password')`
-    const users = await User.find().select('-password');
+    // Fetch all users and populate the seat details
+    const users = await User.find()
+      .populate('seat')  // Populate the seat object, which should include its details
+      .populate('seat.tier', 'name')  // Populate the tier name in the seat object
 
-    // Return the list of users
+    // Return the list of users with populated seat details
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 //Get Single User by Email ID
 router.get('/email/:email', isAdmin, async (req, res) => {
