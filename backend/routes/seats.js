@@ -321,76 +321,69 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
 
 // Assign seat to a user
 router.post('/assign', isAuthenticated, async (req, res) => {
-    const { email, seatNumber } = req.body;
-  
-    if (!email || !seatNumber) {
-      return res.status(400).json({ error: 'Email and seat number are required.' });
-    }
-  
-    try {
-      // Check if the user exists
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ error: 'User not found.' });
-      }
-  
-      console.log("EMAIL", email);
-  
-      // Check if the user already has a seat assigned
-      const existingSeat = await Seats.findOne({ userEmail: email });
-      if (existingSeat) {
-        console.log("EXISTING USER", existingSeat);
-        return res.status(400).json({ error: 'User already has a seat assigned.' });
-      }
-  
-      // Check if the seat exists and is available
-      const seat = await Seats.findOne({ seatNumber }).populate('tier', 'name'); // Populate tierName
-      console.log('Populated Seat:', seat);
-      if (!seat) {
-        return res.status(404).json({ error: 'Seat not found.' });
-      }
-  
-      if (seat.status !== 'vacant') {
-        return res.status(400).json({ error: 'Seat is already occupied or blocked.' });
-      }
-  
-      // Update the seat's status and assign it to the user
-      seat.status = 'blocked';
-      seat.userEmail = user.email;
-      seat.userName = user.name;
-      await seat.save();
-  
-      // Update the user's seatAssigned field
-      user.seatAssigned = true;
-      await user.save();
-  
+  const { email, seatNumber } = req.body;
 
-      console.log("USER OBJECT",user)
-      res.status(200).json({
-        message: `Seat ${seatNumber} successfully assigned to ${email}.`,
-        seat: {
-          seatNumber: seat.seatNumber,
-          status: seat.status,
-          userEmail: seat.userEmail,
-          userName: seat.userName,
-          tier: seat.tier?.name, // Include the populated tier name
-          price: seat.price,
-          deposit: seat.deposit,
-        },
+  if (!email || !seatNumber) {
+    return res.status(400).json({ error: 'Email and seat number are required.' });
+  }
+
+  try {
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Check if the user already has a seat assigned
+    if (user.seatAssigned) {
+      return res.status(400).json({ error: 'User already has a seat assigned.' });
+    }
+
+    // Check if the seat exists and is available
+    const seat = await Seats.findOne({ seatNumber }).populate('tier', 'name'); // Populate tier name
+    if (!seat) {
+      return res.status(404).json({ error: 'Seat not found.' });
+    }
+
+    if (seat.status !== 'vacant') {
+      return res.status(400).json({ error: 'Seat is already occupied or blocked.' });
+    }
+
+    // Assign the seat to the user
+    seat.status = 'blocked';
+    seat.user = user._id;
+    await seat.save();
+
+    // Update the user's seatAssigned flag
+    user.seatAssigned = true;
+    user.seat = seat._id;
+    await user.save();
+
+    res.status(200).json({
+      message: `Seat ${seatNumber} successfully assigned to ${email}.`,
+      seat: {
+        seatNumber: seat.seatNumber,
+        status: seat.status,
+        tier: seat.tier?.name, // Include the populated tier name
+        price: seat.price,
+        deposit: seat.deposit,
         user: {
-          email: user.email,
+          id: user._id,
           name: user.name,
-          seatAssigned: user.seatAssigned, // Include the seatAssigned field
+          email: user.email,
         },
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'An error occurred while assigning the seat.' });
-    }
-  });
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while assigning the seat.' });
+  }
+});
+
+
+
   
 
-// Route to change the status of a seat based on seatNumber and new status
 // Route to change the status of a seat based on seatNumber and new status
 router.put('/status/:seatNumber', async (req, res) => {
     const { seatNumber } = req.params; // Extract seatNumber from URL params
@@ -485,6 +478,41 @@ router.delete('/deleteall', isAdmin, async (req, res) => {
     }
   });
   
+
+
+  // Route to update seatAssigned flag for a user
+router.patch('/seatassigned', async (req, res) => {
+    console.log("in update route 1")
+    const { email, seatAssigned } = req.body; // Get the email and seatAssigned flag from request body
+  console.log("in update route 2")
+    if (email === undefined || seatAssigned === undefined) {
+      return res.status(400).json({ error: 'Email and seatAssigned are required.' });
+    }
+  
+    try {
+      // Find the user by email
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+      }
+      console.log("USERRR", user)
+  
+      // Update the seatAssigned flag
+      user.seatAssigned = seatAssigned;
+      await user.save();
+  
+      res.status(200).json({
+        message: `Seat assignment status updated for ${email}.`,
+        user: {
+          email: user.email,
+          seatAssigned: user.seatAssigned, // Return the updated seatAssigned status
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred while updating the seatAssigned status.' });
+    }
+  });
 
 
 
