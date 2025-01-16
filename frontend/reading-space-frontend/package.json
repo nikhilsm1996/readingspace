@@ -12,14 +12,15 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@radix-ui/react-dropdown-menu": "^2.1.4",
-    "bootstrap": "^5.3.0",
+    "bootstrap": "^5.3.3",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^18.3.1",
-    "react-icons": "^5.4.0",
+    
     "react-router": "^7.1.1",
     "react-router-dom": "^7.1.1",
+    "reactstrap": "^9.2.3",
     "recharts": "^2.15.0"
   },
   "devDependencies": {
