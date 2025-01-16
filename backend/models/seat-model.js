@@ -1,42 +1,40 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const User= require('../models/registration-model');
+const Tier = require('../models/tier-model'); // Correct path for Tier model
+const User = require('../models/registration-model'); // Correct path for User model
 
-
-console.log("in seat model")
-// Create the Seat  Schema
+// Create the Seat Schema
 const seatsSchema = new Schema({
   seatNumber: {
-    type: Number,
+    type: String,
+    required: true, // Ensure that seat number is always provided
   },
   status: {
-    type:String,
-    enum: ['vacant', 'blocked'],
-    default:'vacant'
-    
+    type: String,
+    enum: ['vacant','booked', 'blocked'],
+    default: 'vacant', // Default status for new seats
   },
   tier: {
-    type:String,
-    enum: ['standard', 'premium'],
-    default:'standard',
-    
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tier', // Reference to the Tier collection
+    required: true,
   },
-  userEmail:{
-    type:String,
-    ref:User,
-    default:null,
-    unique: true, // Ensure email is unique across seats
-        sparse: true  // Allows null values for unassigned seats
+  price: {
+    type: Number,
+    required: true, // Ensure every seat has a price
   },
-  userName:{
-    type:String,
-    ref:User,
-  }
-
+  deposit: {
+    type: Number,
+    default: 0, // Optional field for deposit
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+    ref: 'User', // Indicates the user assigned to the seat
+    default: null, // Default to null if no user is assigned
+  },
 });
 
-
-// Create the Seats  model
+// Create the Seats model
 const SeatsModel = mongoose.model('Seats', seatsSchema);
 
 module.exports = SeatsModel;

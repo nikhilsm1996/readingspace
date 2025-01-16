@@ -1,20 +1,28 @@
 var express = require('express');
 var router = express.Router();
-const User = require('../models/registration-model'); // Import the User model from the models folder
+const User = require('../models/registration-model'); 
+const Payment = require('../models/payment-model')
+const isAuthenticated = require('../middlewares/auth');
+const isAdmin = require('../middlewares/adminAuth');
+console.log("in user router")
 
-/* GET All  users listing. */
-router.get('/', async (req, res) => {
+//Get the List of all Users
+// Get the List of all Users with populated seat details
+// Get the List of all Users with populated seat details for admin
+router.get('/', isAdmin, async (req, res) => {
   try {
-    // Use Mongoose's find method to fetch all users
-    const users = await User.find();
+    // Fetch all users and populate the seat and tier details
+    const users = await User.find()
+      .populate({
+        path: 'seat',  // Populating the seat field
+        populate: {
+          path: 'tier',  // Populating the tier field within the seat
+          select: 'name'  // Only selecting the tier's name field
+        }
+      })
+      .select('-password');  // Optionally, exclude password field
 
-    // Remove sensitive data (like password) from each user
-    users.forEach((user) => {
-      user.password = undefined;
-      user.confirmPassword = undefined;
-    });
-
-    // Return the list of users
+    // Return the list of users with populated seat details
     res.status(200).json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -22,20 +30,85 @@ router.get('/', async (req, res) => {
 });
 
 
+//Get details of a Single User
+// Get Single User by ID and include the most recent nextPaymentDueDate from the Payments collection
+router.get('/me', isAuthenticated, async (req, res) => {
+  try {
+    // Get the userId from the authenticated token
+    const userId = req.user.id;
+
+    // Fetch the user's details from the database
+    const user = await User.findById(userId)
+      .populate({
+        path: 'seat',
+        populate: {
+          path: 'tier',
+          select: 'name',
+        },
+      })
+      .select('-password'); // Exclude password field
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Query the Payments collection for the most recent payment record (sorted by createdAt)
+    const payment = await Payment.findOne({ user: userId })
+      .sort({ createdAt: -1 }) // Sort by the createdAt field in descending order (latest first)
+      .select('nextPaymentDueDate'); // Only select nextPaymentDueDate
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment details not found for the user.' });
+    }
+
+    // Respond with the user's details and the most recent nextPaymentDueDate
+    res.status(200).json({
+      user: user,
+      nextPaymentDueDate: payment.nextPaymentDueDate, // Include nextPaymentDueDate from the latest payment
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
+//Get Single User by Email ID
+router.get('/email/:email', isAdmin, async (req, res) => {
+  const { email } = req.params; // Get the email from the request parameters
+
+  try {
+    // Find the user by email and exclude the password field
+    const user = await User.findOne({ email }).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Return the user details
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
 // CREATE A USER
 router.post('/', async (req, res) => {
-  const { name, email, password, confirmPassword, role, phone } = req.body;
-  console.log("PWD",password)
-      console.log("CON PWD",confirmPassword)
+  const { name, email, password, role, phone } = req.body;
+  
   try {
     // Check if passwords match (additional validation)
-    if (password !== confirmPassword) {
-      console.log("PWD",password)
-      console.log("CON PWD",confirmPassword)
-      return res.status(400).json({ error: 'Password and confirm password must match' });
+    if (!password) {
+     
+      return res.status(400).json({ error: 'enter Password'  });
     }
-    console.log("PWD 2",password)
-    console.log("CON PWD 2",confirmPassword)
+    
 
     // Create a new User object
     const newUser = new User({
@@ -55,22 +128,20 @@ router.post('/', async (req, res) => {
 });
 
 //// UPDATE user by email
-router.put('/:email', async (req, res) => {
+router.put('/:email',isAuthenticated, async (req, res) => {
   const { email } = req.params;
   const { name, phone, password, role } = req.body;
 
   try {
-    console.log("inside try")
-    // Check if password and confirm password match
-    
-console.log("just before ops")
+   
+
     // Find the user by email and update
     const updatedUser = await User.findOneAndUpdate(
       { email }, // Find user by email
       { name, phone, password, role }, // Fields to update
       { new: true, runValidators: true } // Return updated document and run schema validators
     );
-    console.log("updated user",User)
+    
 
     if (!updatedUser) {
       return res.status(404).json({ error: 'User not found' });
@@ -85,15 +156,13 @@ console.log("just before ops")
 });
 
 // Update user by MongoDB ObjectId
-router.put('/id/:id', async (req, res) => {
+router.put('/id/:id',isAdmin, async (req, res) => {
   const { id } = req.params; // Get the MongoDB ObjectId from the URL
-  const { name, email, phone, password, confirmPassword, role } = req.body; // Get data from the request body
+  const { name, email, phone, password, role } = req.body; // Get data from the request body
 
   try {
-    // Validate if password and confirmPassword match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'Password and confirm password must match' });
-    }
+   
+    
 
     // Find and update the user by ObjectId
     const updatedUser = await User.findByIdAndUpdate(
@@ -108,7 +177,7 @@ router.put('/id/:id', async (req, res) => {
 
     // Return the updated user data (excluding sensitive fields like password)
     updatedUser.password = undefined;
-    updatedUser.confirmPassword = undefined;
+   
 
     res.status(200).json(updatedUser); // Send the updated user back as the response
   } catch (err) {
@@ -117,7 +186,7 @@ router.put('/id/:id', async (req, res) => {
 });
 
 // Delete a user by MongoDB ObjectId
-router.delete('/id/:id', async (req, res) => {
+router.delete('/id/:id',isAdmin, async (req, res) => {
   const { id } = req.params; // Get the MongoDB ObjectId from the URL
 
   try {
@@ -130,12 +199,12 @@ router.delete('/id/:id', async (req, res) => {
 
     res.status(200).json({ message: 'User deleted successfully', user: deletedUser });
   } catch (err) {
-    res.status(500).json({ error: err.message }); // Error response
+    res.status(500).json({ error: err.message }); 
   }
 });
 
 // Delete a user by email
-router.delete('/email/:email', async (req, res) => {
+router.delete('/email/:email',isAdmin, async (req, res) => {
   const { email } = req.params; // Get the email from the URL
 
   try {
@@ -152,7 +221,7 @@ router.delete('/email/:email', async (req, res) => {
   }
 });
 // Delete multiple users by a condition (e.g., role)
-router.delete('/role/:role', async (req, res) => {
+router.delete('/role/:role',isAdmin, async (req, res) => {
   const { role } = req.params; // Get the role from the URL
 
   try {
