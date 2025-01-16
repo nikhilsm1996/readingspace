@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from 'react-router-dom';
 import { Home, Users, BookOpen, Clock, Settings, ChevronLeft, ChevronRight, LogOut, Armchair, LogOut as VacateIcon } from 'lucide-react';
-// import './AdminSidebar.css';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
   const menuItems = [
@@ -16,43 +15,72 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
 
   return (
     <div
-      className={`d-flex flex-column bg-light border-end vh-100 p-3 position-fixed transition-width ${
+      className={`d-flex flex-column vh-100 shadow-lg position-fixed ${
         isCollapsed ? 'collapsed-sidebar' : ''
       }`}
       style={{
-        width: isCollapsed ? '95px' : '250px',
+        width: isCollapsed ? '90px' : '260px',
         transition: 'width 0.3s ease-in-out',
-        top: '0', // Stick to the top
-        height: '100vh', // Take full height
+        background: 'linear-gradient(to bottom, #4A90E2, #003B73)',
+        color: 'white',
       }}
     >
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <button className="btn btn-primary" onClick={toggleSidebar}>
-          {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+      {/* Sidebar Header */}
+      <div className="d-flex align-items-center justify-content-between p-3">
+        <div className="d-flex align-items-center">
+          <span className="fs-4 fw-bold">
+            {isCollapsed ? 'RS' : 'Reading Space'}
+          </span>
+        </div>
+        <button
+          className="btn btn-light btn-sm"
+          onClick={toggleSidebar}
+          style={{
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            padding: '0',
+          }}
+        >
+          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
-      <div className="sidebar-header text-center mb-6">
-        <h4 className="text-primary">{isCollapsed ? 'RS' : 'Reading Space'}</h4>
-      </div>
-      <nav className="flex-column">
+
+      {/* Navigation Menu */}
+      <nav className="mt-3">
         {menuItems.map(({ path, label, icon: Icon }) => (
           <Link
             to={path}
             key={path}
-            className="btn btn-light text-start mb-2 d-flex align-items-center"
+            className="d-flex align-items-center p-3 text-white text-decoration-none hover-effect"
+            style={{
+              borderRadius: '8px',
+              margin: '0 10px',
+              transition: 'background 0.2s',
+            }}
           >
-            <Icon size={isCollapsed ? 30 : 20} className="me-2" />
+            <Icon size={24} className="me-3" />
             {!isCollapsed && <span>{label}</span>}
           </Link>
         ))}
       </nav>
-      <button
-        className="btn btn-danger text-start mt-auto d-flex align-items-center"
-        onClick={handleLogout}
-      >
-        <LogOut size={isCollapsed ? 30 : 20} className="me-2" />
-        {!isCollapsed && <span>Logout</span>}
-      </button>
+
+      {/* Logout Button */}
+      <div className="mt-auto p-3">
+        <button
+          className="btn btn-danger w-100 d-flex align-items-center"
+          onClick={handleLogout}
+          style={{
+            borderRadius: '8px',
+            backgroundColor: '#FF4A4A',
+            border: 'none',
+            transition: 'background 0.2s',
+          }}
+        >
+          <LogOut size={20} className="me-3" />
+          {!isCollapsed && <span>Logout</span>}
+        </button>
+      </div>
     </div>
   );
 };

@@ -35,7 +35,7 @@ const Login = () => {
         if (result.user.role === "admin") {
           navigate("/admin"); // Redirect admin to admin dashboard
         } else if (result.user.seatAssigned) {
-          navigate("/user-dashboard"); // Redirect returning users to user dashboard
+          navigate("/user"); // Redirect returning users to user dashboard
         } else {
           navigate("/seat-selection"); // Redirect first-time users to seat selection
         }
