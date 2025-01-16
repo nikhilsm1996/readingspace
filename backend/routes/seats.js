@@ -386,7 +386,7 @@ router.get('/:seatNumber', isAdmin, async (req, res) => {
 });
 
 // Endpoint to get all seats with their details
-router.get('/', isAdmin, async (req, res) => {
+router.get('/', isAuthenticated, async (req, res) => {
   try {
     // Find all seats and populate the related tier and user details
     const seats = await Seats.find()
@@ -410,15 +410,18 @@ router.get('/', isAdmin, async (req, res) => {
 
 // Assign seat to a user
 router.post('/assign', isAuthenticated, async (req, res) => {
-  const { email, seatNumber } = req.body;
+  const { seatNumber } = req.body;
 
-  if (!email || !seatNumber) {
-    return res.status(400).json({ error: 'Email and seat number are required.' });
+  if (!seatNumber) {
+    return res.status(400).json({ error: 'Seat number is required.' });
   }
 
   try {
+    // Identify the user from the token (req.user is set by isAuthenticated middleware)
+    const userId = req.user.id;
+
     // Check if the user exists
-    const user = await User.findOne({ email });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -449,7 +452,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: `Seat ${seatNumber} successfully assigned to ${email}.`,
+      message: `Seat ${seatNumber} successfully assigned to ${user.name}.`,
       seat: {
         seatNumber: seat.seatNumber,
         status: seat.status,
@@ -460,6 +463,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
+          seatAssigned:user.seatAssigned,
         },
       },
     });
@@ -468,6 +472,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     res.status(500).json({ error: 'An error occurred while assigning the seat.' });
   }
 });
+
 
 
 
