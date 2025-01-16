@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../models/registration-model'); 
+const Payment = require('../models/payment-model')
 const isAuthenticated = require('../middlewares/auth');
 const isAdmin = require('../middlewares/adminAuth');
 console.log("in user router")
@@ -30,9 +31,10 @@ router.get('/', isAdmin, async (req, res) => {
 
 
 //Get details of a Single User
+// Get Single User by ID and include the most recent nextPaymentDueDate from the Payments collection
 router.get('/me', isAuthenticated, async (req, res) => {
   try {
-    // Use the ID from the authenticated token
+    // Get the userId from the authenticated token
     const userId = req.user.id;
 
     // Fetch the user's details from the database
@@ -44,19 +46,32 @@ router.get('/me', isAuthenticated, async (req, res) => {
           select: 'name',
         },
       })
-      .select('-password'); // Exclude sensitive fields like the password
+      .select('-password'); // Exclude password field
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Respond with the authenticated user's details
-    res.status(200).json(user);
+    // Query the Payments collection for the most recent payment record (sorted by createdAt)
+    const payment = await Payment.findOne({ user: userId })
+      .sort({ createdAt: -1 }) // Sort by the createdAt field in descending order (latest first)
+      .select('nextPaymentDueDate'); // Only select nextPaymentDueDate
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment details not found for the user.' });
+    }
+
+    // Respond with the user's details and the most recent nextPaymentDueDate
+    res.status(200).json({
+      user: user,
+      nextPaymentDueDate: payment.nextPaymentDueDate, // Include nextPaymentDueDate from the latest payment
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 
