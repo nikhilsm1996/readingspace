@@ -11,7 +11,10 @@ var seatRouter = require('./routes/seats')
 var loginRouter = require('./routes/login')
 var tierRouter = require('./routes/tier')
 var paymentRouter = require('./routes/payment')
+var blogRouter = require('./routes/blog')
+var notificationRouter= require('./routes/notification')
 var app = express();
+const backgroundTasks = require('./background/backgroundTasks');
 
 // Connect to MongoDB (replace with your own connection string)
 // MongoDB connection
@@ -35,6 +38,12 @@ app.use('/seats',seatRouter)
 app.use('/login',loginRouter)
 app.use('/tier',tierRouter)
 app.use('/payment',paymentRouter)
+app.use('/blog',blogRouter)
+app.use('/notification',notificationRouter)
+
+
+// Serve static files (images, etc.) from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));  // Serve files relative to the project root
 
 
 
