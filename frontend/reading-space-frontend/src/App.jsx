@@ -11,6 +11,15 @@ import AdLiveSeats from './components/AdLiveSeats';
 import AdPayment from './components/AdPayment';
 import AdSettings from './components/AdSettings';
 import AdVacate from './components/AdVacate';
+import UserLayout from './pages/UserLayout';
+import UsDashboard from './components/UsDashboard';
+import UsSwitchSeat from './components/UsSwitchSeat';
+import UsVacateSeat from './components/UsVacateSeat';
+import UsPayment from './components/UsPayment';
+import UsReportIssue from './components/UsReportIssue';
+
+
+
 
 function App() {
   return (
@@ -30,6 +39,15 @@ function App() {
           <Route path="payment" element={<AdPayment />} />
           <Route path="settings" element={<AdSettings />} />
           <Route path="vacate" element={<AdVacate />} />
+        </Route>
+        <Route path="/user" element={<UserLayout />} >
+          <Route path="/user" element={<Navigate to="Dashboard" />} />
+          <Route path="/user" element={<UsDashboard />} />
+          <Route path="dashboard" element={<UsDashboard />} />
+          <Route path="switch-seat" element={<UsSwitchSeat/>} />
+          <Route path="vacate-seat" element={<UsVacateSeat/>} />
+          <Route path="payment" element={<UsPayment/>} />
+          <Route path="report-issue" element={<UsReportIssue/>} />
         </Route>
       </Routes>
     </Router>

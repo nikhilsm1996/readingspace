@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,16 +26,21 @@ const Login = () => {
     try {
       const response = await fetch("http://localhost:3000/login", requestOptions);
       const result = await response.json();
-console.log("Result",result);
+      console.log("Result", result);
 
       if (response.ok) {
+        // Store the token in localStorage
+        localStorage.setItem("authToken", result.token);
+
         if (result.user.role === "admin") {
-          navigate("/admin");
+          navigate("/admin"); // Redirect admin to admin dashboard
+        } else if (result.user.seatAssigned) {
+          navigate("/user-dashboard"); // Redirect returning users to user dashboard
         } else {
-          navigate("/seat-selection");
+          navigate("/seat-selection"); // Redirect first-time users to seat selection
         }
       } else {
-        alert(result.message || "Invalid credentials");
+        alert(result.error || "Invalid credentials");
       }
     } catch (error) {
       console.error("Error:", error);
