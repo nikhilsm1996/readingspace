@@ -544,6 +544,88 @@ router.put('/status/:seatNumber', async (req, res) => {
 });
 
 
+
+// Switch Seats
+// Switch Seat for the User
+router.post('/switch', isAuthenticated, async (req, res) => {
+  const { newSeatNumber } = req.body;
+
+  if (!newSeatNumber) {
+    return res.status(400).json({ error: 'New seat number is required.' });
+  }
+
+  try {
+    // Get the userId from the authenticated token
+    const userId = req.user.id;
+
+    // Find the user and their currently assigned seat
+    const user = await User.findById(userId).populate('seat');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check if the user already has a seat assigned
+    if (!user.seatAssigned) {
+      return res.status(400).json({ error: 'User does not have a seat assigned.' });
+    }
+
+    // Find the user's current seat and mark it as vacant
+    const oldSeat = user.seat;
+    oldSeat.status = 'vacant';
+    await oldSeat.save();
+
+    // Find the new seat by seatNumber
+    const newSeat = await Seats.findOne({ seatNumber: newSeatNumber }).populate('tier', 'name');
+    if (!newSeat) {
+      return res.status(404).json({ error: 'New seat not found.' });
+    }
+
+    // Check if the new seat is vacant
+    if (newSeat.status !== 'vacant') {
+      return res.status(400).json({ error: 'The new seat is not vacant.' });
+    }
+
+    // Assign the new seat to the user
+    newSeat.status = 'booked';
+    newSeat.user = user._id;
+    await newSeat.save();
+
+    // Update the user's seat reference and mark the seat as assigned
+    user.seat = newSeat._id;
+    user.seatAssigned = true;
+    await user.save();
+
+    // Respond with both old seat number and new seat details
+    res.status(200).json({
+      message: `Seat successfully switched from ${oldSeat.seatNumber} to ${newSeatNumber}`,
+      oldSeat: {
+        seatNumber: oldSeat.seatNumber
+      },
+      newSeat: {
+        seatNumber: newSeat.seatNumber,
+        status: newSeat.status,
+        tier: newSeat.tier?.name, // Populated tier name
+        price: newSeat.price,
+        deposit: newSeat.deposit,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while switching the seat.' });
+  }
+});
+
+
+
+
+
+
+
 //Delete all seats
 router.delete('/deleteall', isAdmin, async (req, res) => {
     try {
