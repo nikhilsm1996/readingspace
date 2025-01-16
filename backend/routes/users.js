@@ -7,7 +7,7 @@ console.log("in user router")
 
 //Get the List of all Users
 // Get the List of all Users with populated seat details
-// Get the List of all Users with populated seat details
+// Get the List of all Users with populated seat details for admin
 router.get('/', isAdmin, async (req, res) => {
   try {
     // Fetch all users and populate the seat and tier details
@@ -27,6 +27,37 @@ router.get('/', isAdmin, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+//Get details of a Single User
+router.get('/me', isAuthenticated, async (req, res) => {
+  try {
+    // Use the ID from the authenticated token
+    const userId = req.user.id;
+
+    // Fetch the user's details from the database
+    const user = await User.findById(userId)
+      .populate({
+        path: 'seat',
+        populate: {
+          path: 'tier',
+          select: 'name',
+        },
+      })
+      .select('-password'); // Exclude sensitive fields like the password
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Respond with the authenticated user's details
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 
