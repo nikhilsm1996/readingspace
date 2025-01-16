@@ -14,7 +14,7 @@ var paymentRouter = require('./routes/payment')
 var blogRouter = require('./routes/blog')
 var notificationRouter= require('./routes/notification')
 var app = express();
-const backgroundTasks = require('./background/backgroundTasks');
+// const backgroundTasks = require('./background/backgroundTasks');
 
 // Connect to MongoDB (replace with your own connection string)
 // MongoDB connection
