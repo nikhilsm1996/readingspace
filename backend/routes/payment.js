@@ -4,17 +4,21 @@ const PaymentModel = require('../models/payment-model');
 const Seats = require('../models/seat-model');
 const User = require('../models/registration-model'); // Assuming you have a User model
 const Tier= require('../models/tier-model')
+const isAuthenticated = require('../middlewares/auth')
 
-router.post('/start-payment', async (req, res) => {
-  const { email, paymentMethod } = req.body;
+router.post('/start-payment', isAuthenticated, async (req, res) => {
+  const { paymentMethod } = req.body;
 
-  if (!email || !paymentMethod) {
-    return res.status(400).json({ error: 'Email and payment method are required.' });
+  if (!paymentMethod) {
+    return res.status(400).json({ error: 'Payment method is required.' });
   }
 
   try {
+    // Access the userId from the request object (populated by the isAuthenticated middleware)
+    const userId = req.user.id; // Access the authenticated user's ID from req.user
+
     // Fetch user and their assigned seat, populate seat details
-    const user = await User.findOne({ email }).populate({
+    const user = await User.findById(userId).populate({
       path: 'seat',
       populate: {
         path: 'tier', // Populate tier to get tier details
@@ -93,7 +97,7 @@ router.post('/start-payment', async (req, res) => {
         nextPaymentDueDate: newPayment.nextPaymentDueDate,
         paymentStatus: newPayment.paymentStatus,
         seatNumber: seat.seatNumber, // Seat number from populated seat
-        tier: seat.tier ? seat.tier.name : 'Unknown', // Tier name from populated tier
+        tier: seat.tier ? seat.tier.name : 'No Tier Data', // Tier name from populated tier
       },
     });
   } catch (err) {
@@ -101,6 +105,8 @@ router.post('/start-payment', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while initiating the payment.' });
   }
 });
+
+
 
 
 
