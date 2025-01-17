@@ -1,20 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link component
 
 const NotFound = () => {
   return (
     <div style={styles.container}>
       <img
-        src="https://cdn.dribbble.com/users/722246/screenshots/3490541/media/5e8f290d0c9b3f0a2f7f57de6dbd078b.png"
+        src="https://s.tmimgcdn.com/scr/800x500/122600/error-page-not-found-illustration_122693-original.jpg"
         alt="404 Illustration"
         style={styles.image}
       />
-      <h1 style={styles.heading}>404</h1>
-      <p style={styles.description}>
-        Oops! We can't find this page. It may have been moved.
-      </p>
-      <a href="/" style={styles.link}>
-        Back to previous
-      </a>
+      <h1 style={styles.heading}>   Oops! We can't find this page. It may have been moved.      </h1>
+      <p style={styles.description}>Don't worry! You can explore our homepage to find what you're looking for.
+      .</p>
+      <Link to="/" style={styles.link}>Go back to Homepage</Link> {/* Link to Homepage */}
     </div>
   );
 };
@@ -26,27 +24,35 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    fontFamily: "'Arial', sans-serif",
-    textAlign: 'center',
+    margin: 0,
     backgroundColor: '#f9f9f9',
+    textAlign: 'center',
   },
   image: {
-    width: '250px',
+    width: '60%',
+    maxWidth: '600px',
+    objectFit: 'cover',
     marginBottom: '20px',
   },
   heading: {
-    fontSize: '4rem',
+    fontSize: '2rem',
     color: '#333',
+    margin: '10px 0',
   },
   description: {
     fontSize: '1.2rem',
     color: '#666',
-    marginBottom: '20px',
   },
   link: {
+    fontSize: '1.2rem',
     color: '#ff5722',
     textDecoration: 'none',
-    fontSize: '1rem',
+    marginTop: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#fff',
+    borderRadius: '5px',
+    border: '1px solid #ff5722',
+    cursor: 'pointer',
   },
 };
 
