@@ -5,9 +5,9 @@ const AdminSeatManagement = () => {
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [showSeatInfo, setShowSeatInfo] = useState(false);
   const [seatData, setSeatData] = useState({
-    standard: { seats: [], price: 1500, deposit: 500 },
-    premium: { seats: [], price: 2000, deposit: 1000 },
-    supreme: { seats: [], price: 3500, deposit: 2000 },
+    standard: { seats: []},
+    premium: { seats: []},
+    supreme: { seats: []},
   });
   const [seatCounts, setSeatCounts] = useState({
     standard: { vacant: 0, blocked: 0, booked: 0 },
@@ -39,9 +39,9 @@ const AdminSeatManagement = () => {
 
         // Organize seats by tier
         const tierData = {
-          standard: { seats: [], price: 1500, deposit: 500 },
-          premium: { seats: [], price: 2000, deposit: 1000 },
-          supreme: { seats: [], price: 3500, deposit: 2000 },
+          standard: { seats: []},
+          premium: { seats: []},
+          supreme: { seats: []},
         };
 
         const counts = {

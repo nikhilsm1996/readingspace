@@ -55,7 +55,7 @@ const Contact = () => {
           {/* Image */}
           <div className="col-md-6">
             <img
-              src="https://img.freepik.com/free-photo/people-using-technology-cozy-library_53876-133227.jpg"
+              src="https://images.pexels.com/photos/14970229/pexels-photo-14970229/free-photo-of-plant-in-a-pot-by-the-window.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
               alt="Contact Us"
               className="img-fluid rounded shadow"
             />
