@@ -3,6 +3,7 @@ const router = express.Router();
 const PaymentModel = require('../models/payment-model');
 const Seats = require('../models/seat-model');
 const User = require('../models/registration-model'); // Assuming you have a User model
+const Notification = require('../models/notifications-model')
 const Tier= require('../models/tier-model')
 const isAuthenticated = require('../middlewares/auth')
 
@@ -83,6 +84,20 @@ router.post('/start-payment', isAuthenticated, async (req, res) => {
     // Save the payment record
     await newPayment.save();
 
+// Create a notification for admins about the pending payment
+const admins = await User.find({ role: 'admin' }); // Fetch all admin users
+admins.forEach(async (admin) => {
+  const notificationMessage = `A new payment has been initiated by ${user.name}. Seat Number: ${seat.seatNumber}, Tier: ${seat.tier.name}, Amount: ${amount}`;
+  const notification = new Notification({
+    user: admin._id,
+    message: notificationMessage,
+  });
+
+  await notification.save();
+});
+
+
+
     // Response to client with populated seat and tier details
     res.status(200).json({
       message: 'Payment initiated successfully.',
@@ -157,7 +172,19 @@ router.put('/confirm-payment', async (req, res) => {
       if (user) {
         user.seatAssigned = true;
         await user.save();
+
+       // Send a notification to the user
+      const notification = new Notification({
+        user: user._id,
+        message: `Your payment with Transaction ID ${transactionId} has been confirmed successfully.!`,
+      });
+      await notification.save();
+
+
+
       }
+
+      
   
       res.status(200).json({
         message: 'Payment successfully confirmed',

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const Seats= require('../models/seat-model'); 
 const User= require('../models/registration-model');
+const Notifictaion= require('../models/notifications-model');
 const isAuthenticated = require('../middlewares/auth');
 const isAdmin = require('../middlewares/adminAuth');
 const Tier = require('../models/tier-model')
@@ -451,6 +452,23 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     user.seat = seat._id;
     await user.save();
 
+// Ensure the user has an admin role before sending a notification
+const adminUsers = await User.find({ role: 'admin' }); // Find all admin users
+if (adminUsers.length > 0) {
+  // Send notifications to all admins
+  const notificationMessage = `Seat ${seatNumber} has been successfully assigned to ${user.name}.`;
+  
+  // Create and save notification for each admin
+  for (const admin of adminUsers) {
+    const adminNotification = new Notification({
+      user: admin._id,  // Admin user who will receive the notification
+      message: notificationMessage,
+    });
+    await adminNotification.save();
+  }
+}
+
+
     res.status(200).json({
       message: `Seat ${seatNumber} successfully assigned to ${user.name}.`,
       seat: {
@@ -594,6 +612,19 @@ router.post('/switch', isAuthenticated, async (req, res) => {
     user.seat = newSeat._id;
     user.seatAssigned = true;
     await user.save();
+
+// Notify all admins about the seat change
+const admins = await User.find({ role: 'admin' });
+for (let admin of admins) {
+  const notificationMessage = `${user.name} has switched their seat from ${oldSeat.seatNumber} to ${newSeatNumber}.`;
+
+  // Create the notification for the admin
+  const notification = new Notification({
+    user: admin._id,
+    message: notificationMessage,
+  });
+  await notification.save();
+}
 
     // Respond with both old seat number and new seat details
     res.status(200).json({
