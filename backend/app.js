@@ -13,6 +13,8 @@ var tierRouter = require('./routes/tier')
 var paymentRouter = require('./routes/payment')
 var blogRouter = require('./routes/blog')
 var notificationRouter= require('./routes/notification')
+var vacationRouter=require('./routes/vacation')
+var issueRouter  =require('./routes/issue')
 var app = express();
 const backgroundTasks = require('./background/backgroundTasks');
 
@@ -40,6 +42,8 @@ app.use('/tier',tierRouter)
 app.use('/payment',paymentRouter)
 app.use('/blog',blogRouter)
 app.use('/notification',notificationRouter)
+app.use('/vacation',vacationRouter)
+app.use('/issue',issueRouter)
 
 
 // Serve static files (images, etc.) from the 'uploads' directory
