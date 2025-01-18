@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+ 
 } from 'lucide-react';
 
 const UserSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
@@ -18,6 +19,7 @@ const UserSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
     { path: 'vacate-seat', label: 'VacateSeat', icon: Armchair },
     { path: 'payment', label: 'Payment', icon: IndianRupee },
     { path: 'report-issue', label: 'ReportIssue', icon: MessageCircleWarning },
+    
   ];
 
   return (
@@ -56,7 +58,7 @@ const UserSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
       {/* User Greeting */}
       {!isCollapsed && (
         <div className="p-3">
-          <p className="mb-0">Welcome back, User!</p>
+          <p className="mb-0">Welcome back,</p>
           <small>We’re glad to have you here.</small>
         </div>
       )}
