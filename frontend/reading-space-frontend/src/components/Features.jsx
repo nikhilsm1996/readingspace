@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 
 const Features = () => {
   const features = [
@@ -77,9 +77,9 @@ const Features = () => {
 
   const handlePrev = () => {
     if (currentIndex === 0) {
-      setCurrentIndex(features.length - itemsPerPage); 
+      setCurrentIndex(features.length - itemsPerPage);
     } else {
-      setCurrentIndex(currentIndex - 1); 
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
@@ -88,30 +88,51 @@ const Features = () => {
   return (
     <section id="features" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center mb-4">Facilities We Provide for Our Libraries</h2>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Times New Roman', serif" }}>
+          Facilities We Provide for Our Libraries
+        </h2>
         <div className="d-flex justify-content-between align-items-center">
-          <button onClick={handlePrev} className="btn btn-primary">
+          <button onClick={handlePrev} className="btn btn-primary shadow-sm">
             &lt; Prev
           </button>
 
           <div className="d-flex">
             {visibleFeatures.map((feature, index) => (
-              <div key={index} className="card mx-2" style={{ width: '250px' }}>
+              <div
+                key={index}
+                className="card mx-2 border-0 shadow-sm"
+                style={{
+                  width: "250px",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                  e.currentTarget.style.boxShadow = "0 10px 20px rgba(0, 0, 0, 0.1)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+                }}
+              >
                 <img
                   src={feature.image}
                   alt={feature.title}
                   className="card-img-top"
-                  style={{ height: '200px', objectFit: 'cover' }}
+                  style={{ height: "200px", objectFit: "cover" }}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">{feature.title}</h5>
-                  <p className="card-text">{feature.description}</p>
+                  <h5 className="card-title fw-bold" style={{ fontFamily: "'Times New Roman', serif" }}>
+                    {feature.title}
+                  </h5>
+                  <p className="card-text text-muted" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+                    {feature.description}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
 
-          <button onClick={handleNext} className="btn btn-primary">
+          <button onClick={handleNext} className="btn btn-primary shadow-sm">
             Next &gt;
           </button>
         </div>
