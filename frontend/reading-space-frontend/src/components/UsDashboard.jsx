@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Card, Container, Row, Col } from 'react-bootstrap';
+import { Card, Container, Row, Col, Button } from 'react-bootstrap';
 import { User, Mail, Hash, Clock, CreditCard, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './UsDashboard.css';
 
 const UsDashboard = () => {
   const [userData, setUserData] = useState(null);
+  const [nextPaymentDue, setNextPaymentDue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   // Fetch user data from the backend
   useEffect(() => {
@@ -32,13 +35,52 @@ const UsDashboard = () => {
       } catch (error) {
         console.error('Error fetching user data:', error);
         setError('An error occurred. Please check your connection.');
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUserData();
   }, []);
+
+  // Fetch payment data to get the next payment due date
+  useEffect(() => {
+    const fetchPaymentData = async () => {
+      try {
+        const myHeaders = new Headers();
+        myHeaders.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`);
+
+        const requestOptions = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow',
+        };
+
+        const response = await fetch('http://localhost:3000/payment/mypayments', requestOptions);
+        const result = await response.json();
+
+        if (response.ok) {
+          // Extract the next payment due date from the latest payment
+          const latestPayment = result.payments[0];
+          if (latestPayment) {
+            setNextPaymentDue(latestPayment.nextPaymentDueDate);
+          }
+        } else {
+          setError(result.message || 'Failed to fetch payment data.');
+        }
+      } catch (error) {
+        console.error('Error fetching payment data:', error);
+        setError('An error occurred. Please check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPaymentData();
+  }, []);
+
+  // Handle edit profile button click
+  const handleEditProfile = () => {
+    navigate('../profile'); // Navigate to the edit profile page
+  };
 
   if (loading) {
     return <p className="text-center">Loading...</p>;
@@ -102,10 +144,17 @@ const UsDashboard = () => {
                 <Clock size={20} className="me-2 text-secondary" />
                 <span>
                   Next Payment Due:{' '}
-                  {userData?.nextPaymentDueDate
-                    ? new Date(userData.nextPaymentDueDate).toLocaleDateString()
+                  {nextPaymentDue
+                    ? new Date(nextPaymentDue).toLocaleDateString()
                     : 'Not specified'}
                 </span>
+              </div>
+
+              {/* Edit Profile Button */}
+              <div className="d-flex justify-content-center mt-4">
+                <Button variant="primary" onClick={handleEditProfile}>
+                  Edit Profile
+                </Button>
               </div>
             </Card.Body>
           </Card>
