@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const PaymentModel = require('../models/payment-model');
 const Seats = require('../models/seat-model');
-const User = require('../models/registration-model'); // Assuming you have a User model
+const User = require('../models/registration-model'); 
 const Notification = require('../models/notifications-model')
 const Tier= require('../models/tier-model')
 const isAuthenticated = require('../middlewares/auth')
@@ -15,8 +15,8 @@ router.post('/start-payment', isAuthenticated, async (req, res) => {
   }
 
   try {
-    // Access the userId from the request object (populated by the isAuthenticated middleware)
-    const userId = req.user.id; // Access the authenticated user's ID from req.user
+    
+    const userId = req.user.id; 
 
     // Fetch user and their assigned seat, populate seat details
     const user = await User.findById(userId).populate({
@@ -202,6 +202,7 @@ router.put('/confirm-payment', async (req, res) => {
   
 
 // Route for admin to get payments by status
+// Route for admin to get payments by status
 router.get('/', async (req, res) => {
   const { status } = req.query; // Get the payment status from query parameters (e.g., 'processing', 'completed', 'failed')
 
@@ -212,16 +213,17 @@ router.get('/', async (req, res) => {
 
   try {
     // Find payments by the given status, or fetch all if no status is provided
-    //NOTE : ONLY NESTED POPULATE WORKS
     const payments = await PaymentModel.find(status ? { paymentStatus: status } : {})
       .populate({
         path: 'seat',
         populate: {
           path: 'tier',
-          select: 'name', // Only select the tier name
+          select: 'name price deposit',  // Only select the tier name, price, and deposit
         },
       })
       .populate('user');  // Populating the user information as well
+
+console.log("PAYMNT",payments)
 
     if (payments.length === 0) {
       return res.status(404).json({ message: 'No payments found.' });
@@ -234,14 +236,60 @@ router.get('/', async (req, res) => {
         paymentStatus: payment.paymentStatus,
         totalAmount: payment.totalAmount,
         userEmail: payment.user.email,
-        seatNumber: payment.seat.seatNumber,
+        seatNumber: payment.seat.seatNumber || 'No Seat Number',
         paymentDate: payment.paymentDate,
         tierName: payment.seat.tier ? payment.seat.tier.name : 'No Tier', // Ensure tier is included
+        tierPrice: payment.seat.tier ? payment.seat.tier.price : 'No Price',
+        tierDeposit: payment.seat.tier ? payment.seat.tier.deposit : 'No Deposit',
       })),
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'An error occurred while fetching payments.' });
+  }
+});
+
+
+// GET PAYMENT INFORMATION OF A SINGLE USER
+router.get('/mypayments', isAuthenticated, async (req, res) => {
+  const userId = req.user.id;  // User ID extracted from the token
+  console.log("USERID", userId);
+
+  try {
+    // Fetch payments related to the authenticated user
+    const payments = await PaymentModel.find({ user: userId })
+      .populate({
+        path: 'seat', // Populate the seat data
+        populate: {
+          path: 'tier', // Nested populate to populate the tier inside the seat
+          select: 'name price deposit' // Select only the necessary fields from the tier
+        }
+      })
+      .populate('user'); // Populate user details if needed
+
+    if (payments.length === 0) {
+      return res.status(404).json({ message: 'No payments found for this user.' });
+    }
+
+    // Log the payments to check if nextPaymentDueDate and tier are populated
+    console.log('Payments:', payments);
+
+    res.status(200).json({
+      message: 'Payments retrieved successfully.',
+      payments: payments.map(payment => ({
+        transactionId: payment.transactionId,
+        paymentStatus: payment.paymentStatus,
+        totalAmount: payment.totalAmount,
+        paymentDate: payment.paymentDate,
+        seatNumber: payment.seat ? payment.seat.seatNumber : 'No Seat Number',
+        tierName: payment.seat && payment.seat.tier ? payment.seat.tier.name : 'No Tier',
+        tierPrice: payment.seat && payment.seat.tier ? payment.seat.tier.price : 'No Price',
+        nextPaymentDueDate: payment.nextPaymentDueDate || 'No due date',
+      }))
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'An error occurred while fetching payment info.' });
   }
 });
 

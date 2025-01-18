@@ -3,9 +3,11 @@ const Seats = require('../models/seat-model');
 const User = require('../models/registration-model');
 const Payments = require('../models/payment-model');
 const Notification = require('../models/notifications-model'); // Assuming this is your notification model
-
+const SeatVacationRequest = require('../models/seatvacation-model'); // Add your seat vacation request model
+const Tier = require('../models/tier-model'); // Add Tier model
+const moment = require('moment-timezone');
 // Cron job to run every day at 3 PM
-cron.schedule('0 15 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   try {
     console.log('Running overdue payments check, payment reminders, and overdue notifications...');
 
@@ -83,7 +85,82 @@ cron.schedule('0 15 * * *', async () => {
     }
 
     console.log('Payment reminder and overdue payment notifications completed.');
-  } catch (error) {
+
+
+// Get the current time in UTC and format it
+const localTimeZone = "Asia/Kolkata"; 
+const startOfMinute = moment().tz(localTimeZone).startOf('minute').utc().toDate();
+const endOfMinute = moment().tz(localTimeZone).endOf('minute').utc().toDate();
+
+
+console.log("startOfMinute",startOfMinute)
+console.log("endOfMinute",endOfMinute)
+
+
+const vacationRequests = await SeatVacationRequest.find({
+  vacationDate: { $gte: startOfMinute, $lt: endOfMinute },
+  status: 'approved',
+});
+
+console.log("VR",vacationRequests)
+
+for (const vacationRequest of vacationRequests) {
+  try {
+    const seat = await Seats.findById(vacationRequest.seat);
+    const user = await User.findById(vacationRequest.user);
+    const tier = await Tier.findById(seat.tier);
+
+    if (seat && user && tier) {
+      // Vacate the seat
+      seat.status = 'vacant';
+      seat.user = null;
+      seat.userEmail = null;
+      seat.userName = null;
+      seat.price = tier.price;
+      seat.deposit = tier.deposit;
+
+      user.seatAssigned = false;
+      user.seat = null;
+
+      // Save the seat and user updates
+      await Promise.all([seat.save(), user.save()]);
+
+  
+      // Notify the user
+      try {
+        const notification = new Notification({
+          user: user._id,
+          message: `Your seat vacation request for seat ${seat.seatNumber} has been processed.`,
+        });
+        await notification.save();
+      } catch (err) {
+        console.error(`Failed to create notification for user ${user._id}:`, err);
+      }
+
+      console.log(`[${new Date().toISOString()}] Processed vacation request for seat ${seat.seatNumber}`);
+    } else {
+      console.error('Invalid vacation request: Missing seat, user, or tier data.');
+    }
+  } catch (err) {
+    console.error('Error processing vacation request:', err);
+  }
+}
+
+console.log('Vacation request processing complete.');
+
+
+
+
+
+
+
+
+  } 
+  
+  
+  catch (error) {
     console.error('Error during payment reminder and overdue payment check:', error);
   }
 });
+
+

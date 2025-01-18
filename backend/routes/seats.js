@@ -422,7 +422,7 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     const userId = req.user.id;
 
     // Check if the user exists
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate('seat'); // Populate seat to ensure we have the seat data
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -452,22 +452,21 @@ router.post('/assign', isAuthenticated, async (req, res) => {
     user.seat = seat._id;
     await user.save();
 
-// Ensure the user has an admin role before sending a notification
-const adminUsers = await User.find({ role: 'admin' }); // Find all admin users
-if (adminUsers.length > 0) {
-  // Send notifications to all admins
-  const notificationMessage = `Seat ${seatNumber} has been successfully assigned to ${user.name}.`;
-  
-  // Create and save notification for each admin
-  for (const admin of adminUsers) {
-    const adminNotification = new Notification({
-      user: admin._id,  // Admin user who will receive the notification
-      message: notificationMessage,
-    });
-    await adminNotification.save();
-  }
-}
-
+    // Ensure the user has an admin role before sending a notification
+    const adminUsers = await User.find({ role: 'admin' }); // Find all admin users
+    if (adminUsers.length > 0) {
+      // Send notifications to all admins
+      const notificationMessage = `Seat ${seatNumber} has been successfully assigned to ${user.name}.`;
+      
+      // Create and save notification for each admin
+      for (const admin of adminUsers) {
+        const adminNotification = new Notification({
+          user: admin._id,  // Admin user who will receive the notification
+          message: notificationMessage,
+        });
+        await adminNotification.save();
+      }
+    }
 
     res.status(200).json({
       message: `Seat ${seatNumber} successfully assigned to ${user.name}.`,
@@ -481,7 +480,7 @@ if (adminUsers.length > 0) {
           id: user._id,
           name: user.name,
           email: user.email,
-          seatAssigned:user.seatAssigned,
+          seatAssigned: user.seatAssigned,
         },
       },
     });
