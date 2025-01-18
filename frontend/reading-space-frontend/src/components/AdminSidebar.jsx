@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Link } from 'react-router-dom';
-import { Home, Users, BookOpen, Clock, Settings, ChevronLeft, ChevronRight, LogOut, Armchair, LogOut as VacateIcon } from 'lucide-react';
+import { Home, Users, BookOpen, Clock, Settings, ChevronLeft, ChevronRight, LogOut, Armchair, LogOut as VacateIcon,Vibrate,BadgeAlert} from 'lucide-react';
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
   const menuItems = [
@@ -9,8 +9,11 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar, handleLogout }) => {
     { path: 'user', label: 'User', icon: Armchair },
     { path: 'live-seats', label: 'Live Seats', icon: Users },
     { path: 'payment', label: 'Payment', icon: Clock },
-    { path: 'settings', label: 'Settings', icon: Settings },
     { path: 'vacate', label: 'Vacate Requests', icon: VacateIcon },
+    { path: 'blog', label: 'Blog', icon: BookOpen },
+    { path: 'notification', label: 'Notification', icon: Vibrate },
+    { path: 'issue-reported', label: 'Issue Reported', icon: BadgeAlert},
+    { path: 'settings', label: 'Settings', icon: Settings },
   ];
 
   return (
