@@ -18,7 +18,7 @@ const seatVacationRequestSchema = new Schema({
   },
   depositAdjustment: {
     type: Number,
-    default: 0, // Amount to reduce or add to the deposit
+    default: 0, 
   },
   status: {
     type: String,
