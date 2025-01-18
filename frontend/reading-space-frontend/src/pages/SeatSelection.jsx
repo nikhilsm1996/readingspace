@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, Alert, Spinner } from 'react-bootstrap';
+import { ArrowLeft } from 'lucide-react';
 
 const SeatSelection = () => {
   const navigate = useNavigate();
@@ -53,6 +55,7 @@ const SeatSelection = () => {
     fetchSeatData();
   }, [token]);
 
+  // Get seat statistics for a tier
   const getSeatStats = (tier) => {
     const seats = seatData[tier];
     return {
@@ -63,6 +66,7 @@ const SeatSelection = () => {
     };
   };
 
+  // Get seat color based on status
   const getSeatColor = (status, isSelected) => {
     if (isSelected) return 'bg-primary text-white';
     switch (status) {
@@ -77,17 +81,20 @@ const SeatSelection = () => {
     }
   };
 
+  // Handle tier selection
   const handleTierSelect = (tier) => {
     setSelectedTier(tier);
     setBookingStage('seats');
   };
 
+  // Handle seat selection
   const handleSeatSelect = (seat) => {
     if (seat.status === 'vacant') {
       setSelectedSeat(seat.seatNumber === selectedSeat ? null : seat.seatNumber);
     }
   };
 
+  // Handle seat confirmation
   const handleConfirmSeat = async () => {
     if (!selectedSeat) return;
 
@@ -137,43 +144,46 @@ const SeatSelection = () => {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-      <div className="container py-5">
+    <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      <Container className="py-5">
         {bookingStage === 'tiers' && (
-          <div className="row g-4">
+          <>
             <h2 className="text-center text-white mb-4">Select Your Tier</h2>
-            {Object.keys(seatData).map((tier) => {
-              const stats = getSeatStats(tier);
-              return (
-                <div key={tier} className="col-md-4">
-                  <div
-                    className="card h-100 shadow-lg border-0 cursor-pointer hover-scale"
-                    onClick={() => handleTierSelect(tier)}
-                  >
-                    <div className="card-body text-center">
-                      <h3 className="card-title text-capitalize fw-bold">{tier}</h3>
-                      <div className="text-muted">
-                        <p>Total Seats: {stats.total}</p>
-                        <p className="text-success">Available: {stats.vacant}</p>
-                        <p className="text-danger">Booked: {stats.booked}</p>
-                        <p>Blocked: {stats.blocked}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+            <Row className="g-4">
+              {Object.keys(seatData).map((tier) => {
+                const stats = getSeatStats(tier);
+                return (
+                  <Col key={tier} md={4}>
+                    <Card
+                      className="h-100 shadow-lg border-0 cursor-pointer hover-scale"
+                      onClick={() => handleTierSelect(tier)}
+                    >
+                      <Card.Body className="text-center">
+                        <h3 className="card-title text-capitalize fw-bold">{tier}</h3>
+                        <div className="text-muted">
+                          <p>Total Seats: {stats.total}</p>
+                          <p className="text-success">Available: {stats.vacant}</p>
+                          <p className="text-danger">Booked: {stats.booked}</p>
+                          <p>Blocked: {stats.blocked}</p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })}
+            </Row>
+          </>
         )}
 
         {bookingStage === 'seats' && (
-          <div className="card shadow-lg border-0">
-            <div className="card-body">
+          <Card className="shadow-lg border-0">
+            <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-capitalize">{selectedTier} Tier Seats</h2>
-                <button className="btn btn-outline-primary" onClick={() => setBookingStage('tiers')}>
-                  ← Back to Tiers
-                </button>
+                <Button variant="outline-primary" onClick={() => setBookingStage('tiers')}>
+                  <ArrowLeft size={20} className="me-2" />
+                  Back to Tiers
+                </Button>
               </div>
 
               {/* Seat Grid */}
@@ -210,19 +220,27 @@ const SeatSelection = () => {
               </div>
 
               {/* Proceed to Payment Button */}
-              <button
-                className="btn btn-primary w-100"
+              <Button
+                variant="primary"
+                className="w-100"
                 onClick={handleConfirmSeat}
                 disabled={!selectedSeat || loading}
               >
-                {loading ? 'Booking Seat...' : 'Proceed to Payment'}
-              </button>
+                {loading ? (
+                  <>
+                    <Spinner as="span" size="sm" animation="border" role="status" />
+                    <span className="ms-2">Booking Seat...</span>
+                  </>
+                ) : (
+                  'Proceed to Payment'
+                )}
+              </Button>
 
-              {error && <div className="alert alert-danger mt-3">{error}</div>}
-            </div>
-          </div>
+              {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+            </Card.Body>
+          </Card>
         )}
-      </div>
+      </Container>
 
       {/* Custom CSS for Seat Grid */}
       <style>
@@ -254,9 +272,17 @@ const SeatSelection = () => {
             height: 16px;
             border-radius: 4px;
           }
+
+          .hover-scale {
+            transition: transform 0.2s;
+          }
+
+          .hover-scale:hover {
+            transform: scale(1.02);
+          }
         `}
       </style>
-    </div>
+    </Container>
   );
 };
 
