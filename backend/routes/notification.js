@@ -119,6 +119,34 @@ router.delete('/:id', isAdmin, async (req, res) => {
   
 
 
+  // Route to fetch all notifications sent to the admin
+router.get('/admin', isAdmin, async (req, res) => {
+  try {
+    // Fetch notifications for the logged-in admin
+    const notifications = await Notification.find({ user: req.user.id })
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .populate('user', 'name email'); // Populate user details (optional)
+    
+    // If no notifications are found
+    if (!notifications.length) {
+      return res.status(404).json({
+        message: 'No notifications found for the admin.',
+      });
+    }
+
+    res.status(200).json({
+      message: 'Admin notifications fetched successfully.',
+      notifications,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: 'An error occurred while fetching admin notifications.',
+    });
+  }
+});
+
+
 
 
 

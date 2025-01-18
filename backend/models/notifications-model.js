@@ -5,20 +5,20 @@ const Schema = mongoose.Schema;
 const notificationSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the user receiving the notification
+    ref: 'User', 
     required: true,
   },
   message: {
     type: String,
-    required: true, // The content of the notification
+    required: true, 
   },
   read: {
     type: Boolean,
-    default: false, // Whether the notification has been read
+    default: false, 
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Timestamp of when the notification was created
+    default: Date.now, 
   },
 });
 
