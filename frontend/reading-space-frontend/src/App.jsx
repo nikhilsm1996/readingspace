@@ -19,7 +19,10 @@ import UsPayment from './components/UsPayment';
 import UsReportIssue from './components/UsReportIssue';
 import SeatSelection from './pages/SeatSelection';
 import Payment from './components/Payment';
-
+import UsProfile from './components/UsProfile';
+import AdBlog from './components/AdBlog';
+import AdNotification from './components/AdNotification';
+import AdIssue from './components/AdIssue';
 
 
 
@@ -42,11 +45,15 @@ function App() {
           <Route path="payment" element={<AdPayment />} />
           <Route path="settings" element={<AdSettings />} />
           <Route path="vacate" element={<AdVacate />} />
+          <Route path="blog" element={<AdBlog />} />
+          <Route path="notification" element={<AdNotification />} />
+          <Route path="issue-reported" element={<AdIssue /> } />
         </Route>
         <Route path="/user" element={<UserLayout />} >
           <Route path="/user" element={<Navigate to="dashboard" />} />
           <Route path="/user" element={<UsDashboard />} />
           <Route path="dashboard" element={<UsDashboard />} />
+          <Route path="profile" element={<UsProfile />} />
           <Route path="switch-seat" element={<UsSwitchSeat/>} />
           <Route path="vacate-seat" element={<UsVacateSeat/>} />
           <Route path="payment" element={<UsPayment/>} />
