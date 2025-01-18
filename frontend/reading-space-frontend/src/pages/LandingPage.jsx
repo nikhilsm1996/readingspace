@@ -7,7 +7,7 @@ import Pricing from "../components/Pricing";
 import Testimonials from "../components/Testimonials";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
-// import Blog from "../components/Blog";
+import Blog from "../components/Blog";
 
 const LandingPage = ({ theme, setTheme }) => {
   return (
@@ -17,10 +17,10 @@ const LandingPage = ({ theme, setTheme }) => {
       <About />
       <Features />
       <Pricing />
+      <Blog/>
       <Testimonials />
       <Contact />
       <Footer />
-      {/* <Blog/> */}
     </>
   );
 };
