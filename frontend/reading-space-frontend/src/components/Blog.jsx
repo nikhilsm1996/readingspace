@@ -24,42 +24,49 @@ const Blog = () => {
   ];
 
   const handleReadMore = (url) => {
-    window.location.href = url; 
+    window.location.href = url;
   };
 
   return (
-    <section id="blog" className="py-5">
+    <section id="blog" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center fw-bold mb-4">Our Blog</h2>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Times New Roman', serif" }}>
+          Our Blog
+        </h2>
         <div className="row g-4">
           {blog.map((item, index) => (
             <div key={index} className="col-md-6 col-lg-4">
-              <div className="card text-left shadow-sm h-100">
-                <div
-                  className="bg-image hover-overlay"
-                  data-mdb-ripple-init
-                  data-mdb-ripple-color="light"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="img-fluid"
-                    style={{ width: "100%", height: "200px", objectFit: "cover" }}
-                  />
-                  <a href="#!">
-                    <div
-                      className="mask"
-                      style={{ backgroundColor: "rgba(251, 251, 251, 0.15)" }}
-                    ></div>
-                  </a>
-                </div>
-                <div className="card-body d-flex flex-column">
-                  <h5 className="card-title">{item.name}</h5>
-                  <p className="card-text flex-grow-1">{item.message}</p>
+              <div
+                className="card text-left shadow-sm h-100 border-0"
+                style={{
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                  e.currentTarget.style.boxShadow = "0 10px 20px rgba(0, 0, 0, 0.1)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+                }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="img-fluid"
+                  style={{ width: "100%", height: "200px", objectFit: "cover" }}
+                />
+                <div className="card-body d-flex flex-column p-4">
+                  <h5 className="card-title fw-bold" style={{ fontFamily: "'Times New Roman', serif" }}>
+                    {item.name}
+                  </h5>
+                  <p className="card-text flex-grow-1 text-muted" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+                    {item.message}
+                  </p>
                   <button
                     onClick={() => handleReadMore(item.url)}
-                    className="btn btn-primary mt-auto"
-                    data-mdb-ripple-init
+                    className="btn btn-primary mt-auto shadow-sm"
+                    style={{ fontFamily: "'Open Sans', sans-serif" }}
                   >
                     Read More
                   </button>
