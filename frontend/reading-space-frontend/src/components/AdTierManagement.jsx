@@ -9,6 +9,10 @@ import {
   Label,
   Alert,
   Container,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
 
 const TierCreation = () => {
@@ -16,10 +20,12 @@ const TierCreation = () => {
     name: "",
     price: "",
     deposit: "",
-    seats: "", // Field for the number of seats
+    seats: "",
   });
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedTier, setSelectedTier] = useState(null);
 
   const tierOptions = ["standard", "premium", "supreme"];
 
@@ -41,11 +47,17 @@ const TierCreation = () => {
       return false;
     }
     if (!formData.deposit || formData.deposit <= 0) {
-      setMessage({ text: "Please enter a valid deposit amount", type: "danger" });
+      setMessage({
+        text: "Please enter a valid deposit amount",
+        type: "danger",
+      });
       return false;
     }
     if (!formData.seats || formData.seats <= 0) {
-      setMessage({ text: "Please enter a valid number of seats", type: "danger" });
+      setMessage({
+        text: "Please enter a valid number of seats",
+        type: "danger",
+      });
       return false;
     }
     return true;
@@ -95,15 +107,20 @@ const TierCreation = () => {
       myHeaders.append("Authorization", `Bearer ${token}`);
 
       const raw = JSON.stringify({
-        [`total${formData.name.charAt(0).toUpperCase() + formData.name.slice(1)}Seats`]: Number(formData.seats),
+        [`total${
+          formData.name.charAt(0).toUpperCase() + formData.name.slice(1)
+        }Seats`]: Number(formData.seats),
       });
 
-      const seatResponse = await fetch(`http://localhost:3000/seats/${formData.name}`, {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      });
+      const seatResponse = await fetch(
+        `http://localhost:3000/seats/${formData.name}`,
+        {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        }
+      );
 
       const seatData = await seatResponse.json();
 
@@ -126,6 +143,87 @@ const TierCreation = () => {
     } catch (error) {
       setMessage({
         text: error.message || "Error creating tier or seats",
+        type: "danger",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditTier = (tier) => {
+    setSelectedTier(tier);
+    setEditMode(true);
+    setFormData({
+      name: tier,
+      price: "",
+      deposit: "",
+      seats: "",
+    });
+  };
+
+  const handleUpdateTier = async () => {
+    if (!formData.price || !formData.deposit) {
+      setMessage({
+        text: "Please enter both price and deposit",
+        type: "danger",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      setMessage({
+        text: "User not authenticated. Please log in.",
+        type: "danger",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${token}`);
+
+      const raw = JSON.stringify({
+        price: Number(formData.price),
+        deposit: Number(formData.deposit),
+      });
+
+      const response = await fetch(
+        `http://localhost:3000/tier/${selectedTier}`,
+        {
+          method: "PUT",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update tier");
+      }
+
+      setMessage({
+        text: `Successfully updated ${selectedTier} tier with price ${formData.price} and deposit ${formData.deposit}.`,
+        type: "success",
+      });
+
+      setEditMode(false);
+      setSelectedTier(null);
+      setFormData({
+        name: "",
+        price: "",
+        deposit: "",
+        seats: "",
+      });
+    } catch (error) {
+      setMessage({
+        text: error.message || "Error updating tier",
         type: "danger",
       });
     } finally {
@@ -225,8 +323,72 @@ const TierCreation = () => {
               {loading ? "Creating Tier and Seats..." : "Create Tier and Seats"}
             </Button>
           </Form>
+
+          <div className="mt-4">
+            <h3>Edit Existing Tiers</h3>
+            {tierOptions.map((tier) => (
+              <Button
+                key={tier}
+                color="secondary"
+                className="me-2"
+                onClick={() => handleEditTier(tier)}
+              >
+                Edit {tier.charAt(0).toUpperCase() + tier.slice(1)}
+              </Button>
+            ))}
+          </div>
         </CardBody>
       </Card>
+
+      {/* Edit Tier Modal */}
+      <Modal isOpen={editMode} toggle={() => setEditMode(false)}>
+        <ModalHeader toggle={() => setEditMode(false)}>
+          Edit{" "}
+          {selectedTier
+            ? selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)
+            : ""}{" "}
+          Tier
+        </ModalHeader>
+        <ModalBody>
+          <Form>
+            <FormGroup>
+              <Label for="editPrice">Monthly Price</Label>
+              <Input
+                type="number"
+                name="price"
+                id="editPrice"
+                placeholder="Enter updated monthly price"
+                value={formData.price}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="editDeposit">Deposit Amount</Label>
+              <Input
+                type="number"
+                name="deposit"
+                id="editDeposit"
+                placeholder="Enter updated deposit amount"
+                value={formData.deposit}
+                onChange={handleInputChange}
+                min="0"
+                step="0.01"
+              />
+            </FormGroup>
+          </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button color="primary" onClick={handleUpdateTier} disabled={loading}>
+            {loading ? "Updating..." : "Update Tier"}
+          </Button>
+          <Button color="secondary" onClick={() => setEditMode(false)}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </Container>
   );
 };
