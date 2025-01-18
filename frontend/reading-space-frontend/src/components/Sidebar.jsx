@@ -9,6 +9,7 @@ const Sidebar = () => {
     { name: 'Tier Management', icon: Settings, path: '/tier-management' },
     { name: 'Vacation Notices', icon: Calendar, path: '/vacation-notices' },
     { name: 'Issues Reported', icon: AlertCircle, path: '/issues-reported' },
+    
   ];
 
   return (
