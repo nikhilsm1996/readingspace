@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Container, Row, Col, Card, Button, Alert, Form } from 'react-bootstrap';
-import { Check, Printer, Download } from 'lucide-react';
+import { Container, Row, Col, Card, Button, Alert, Form, Spinner } from 'react-bootstrap';
+import { Check, Printer, Download, CreditCard, Wallet, Hash, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Payment = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('UPI');
+  const [paymentMethod, setPaymentMethod] = useState('UPI'); // Default to UPI
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [error, setError] = useState(null);
@@ -14,19 +13,14 @@ const Payment = () => {
 
   // Handle payment initiation
   const initiatePayment = async () => {
-    if (!email) {
-      setError('Please enter your email address.');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
+    myHeaders.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`);
 
     const raw = JSON.stringify({
-      email: email,
       paymentMethod: paymentMethod,
     });
 
@@ -57,19 +51,23 @@ const Payment = () => {
   };
 
   // Fetch payment status
-  const fetchPaymentStatus = async (status) => {
+  const fetchPaymentStatus = async () => {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`);
+
     const requestOptions = {
       method: 'GET',
+      headers: myHeaders,
       redirect: 'follow',
     };
 
     try {
-      const response = await fetch(`http://localhost:3000/payment?status=${status}`, requestOptions);
+      const response = await fetch('http://localhost:3000/payment/mypayments', requestOptions);
       const result = await response.json();
 
       if (response.ok && result.message === 'Payments retrieved successfully.') {
         setPaymentDetails(result.payments[0]); // Assuming we only care about the first payment
-        setPaymentStatus(status);
+        setPaymentStatus('completed');
         setError(null);
       } else {
         setError(result.message || 'Failed to fetch payment status.');
@@ -92,8 +90,8 @@ Payment Receipt
 ------------------------------
 Transaction ID: ${paymentDetails.transactionId}
 Date: ${new Date(paymentDetails.paymentDate).toLocaleDateString()}
-Email: ${paymentDetails.userEmail || email}
-Tier: ${paymentDetails.tier || paymentDetails.tierName}
+Seat Number: ${paymentDetails.seatNumber}
+Tier: ${paymentDetails.tier}
 Payment Method: ${paymentMethod}
 Total Amount: ₹${paymentDetails.totalAmount}
 
@@ -111,49 +109,56 @@ Thank you for your payment!
 
   // Navigate to user dashboard
   const goToDashboard = () => {
-    navigate('/dashboard');
+    navigate('/user');
   };
 
   return (
     <Container className="mt-5">
       <Row className="justify-content-center">
         <Col md={8}>
-          <Card>
-            <Card.Header>
-              <Card.Title>Payment Screen</Card.Title>
+          <Card className="shadow-sm">
+            <Card.Header className="bg-primary text-white">
+              <Card.Title className="mb-0">Payment Screen</Card.Title>
             </Card.Header>
             <Card.Body>
               {!paymentStatus && (
                 <Form>
                   <Form.Group className="mb-3">
-                    <Form.Label>Email Address</Form.Label>
-                    <Form.Control
-                      type="email"
-                      placeholder="Enter your email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Payment Method</Form.Label>
+                    <Form.Label>
+                      <CreditCard size={20} className="me-2" />
+                      Payment Method
+                    </Form.Label>
                     <Form.Select
                       value={paymentMethod}
                       onChange={(e) => setPaymentMethod(e.target.value)}
+                      required
                     >
                       <option value="UPI">UPI</option>
-                      <option value="cash">Cash</option>
+                      <option value="Cash">Cash</option>
                     </Form.Select>
                   </Form.Group>
-                  <Button variant="primary" onClick={initiatePayment} disabled={loading}>
-                    {loading ? 'Processing...' : 'Initiate Payment'}
+                  <Button
+                    variant="primary"
+                    onClick={initiatePayment}
+                    disabled={loading}
+                    className="w-100"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner as="span" size="sm" animation="border" role="status" />
+                        <span className="ms-2">Processing...</span>
+                      </>
+                    ) : (
+                      'Initiate Payment'
+                    )}
                   </Button>
                 </Form>
               )}
 
               {paymentStatus === 'processing' && (
-                <Alert variant="info">
+                <Alert variant="info" className="text-center">
                   <p>Your payment is being processed. Please wait...</p>
-                  <Button variant="secondary" onClick={() => fetchPaymentStatus('completed')}>
+                  <Button variant="secondary" onClick={fetchPaymentStatus}>
                     Check Payment Status
                   </Button>
                 </Alert>
@@ -161,18 +166,50 @@ Thank you for your payment!
 
               {paymentStatus === 'completed' && paymentDetails && (
                 <div>
-                  <Alert variant="success">
+                  <Alert variant="success" className="text-center">
                     <Check size={32} className="mb-3" />
                     <h2>Payment Successful!</h2>
                     <p>Your transaction has been completed successfully.</p>
                   </Alert>
-                  <div className="text-start">
-                    <p><strong>Transaction ID:</strong> {paymentDetails.transactionId}</p>
-                    <p><strong>Date:</strong> {new Date(paymentDetails.paymentDate).toLocaleDateString()}</p>
-                    <p><strong>Email:</strong> {paymentDetails.userEmail || email}</p>
-                    <p><strong>Tier:</strong> {paymentDetails.tier || paymentDetails.tierName}</p>
-                    <p><strong>Total Amount:</strong> ₹{paymentDetails.totalAmount}</p>
-                  </div>
+
+                  {/* Payment Details */}
+                  <Card className="shadow-sm mb-4">
+                    <Card.Body>
+                      <h5 className="mb-4">Payment Details</h5>
+                      <Row>
+                        <Col md={6}>
+                          <div className="d-flex align-items-center mb-3">
+                            <Hash size={20} className="me-2 text-secondary" />
+                            <span><strong>Transaction ID:</strong> {paymentDetails.transactionId}</span>
+                          </div>
+                          <div className="d-flex align-items-center mb-3">
+                            <Calendar size={20} className="me-2 text-secondary" />
+                            <span><strong>Date:</strong> {new Date(paymentDetails.paymentDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="d-flex align-items-center mb-3">
+                            <Hash size={20} className="me-2 text-secondary" />
+                            <span><strong>Seat Number:</strong> {paymentDetails.seatNumber}</span>
+                          </div>
+                        </Col>
+                        <Col md={6}>
+                          <div className="d-flex align-items-center mb-3">
+                            <CreditCard size={20} className="me-2 text-secondary" />
+                            <span><strong>Tier:</strong> {paymentDetails.tier}</span>
+                          </div>
+                          <div className="d-flex align-items-center mb-3">
+                            <Wallet size={20} className="me-2 text-secondary" />
+                            <span><strong>Total Amount:</strong> ₹{paymentDetails.totalAmount}</span>
+                          </div>
+                          <div className="d-flex align-items-center mb-3">
+                            <CreditCard size={20} className="me-2 text-secondary" />
+                            <span><strong>Payment Method:</strong> {paymentMethod}</span>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Card.Body>
+                  </Card>
+
+                  {/* Action Buttons */}
                   <div className="d-flex justify-content-center gap-3 mt-4">
                     <Button variant="primary" onClick={handlePrint}>
                       <Printer className="me-2" />
