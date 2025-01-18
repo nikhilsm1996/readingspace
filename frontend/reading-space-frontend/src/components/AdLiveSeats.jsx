@@ -1,13 +1,13 @@
-import { useState, useEffect, } from 'react';
+import { useState, useEffect } from 'react';
 
 const AdminSeatManagement = () => {
   const [selectedTier, setSelectedTier] = useState('standard');
   const [selectedSeat, setSelectedSeat] = useState(null);
   const [showSeatInfo, setShowSeatInfo] = useState(false);
   const [seatData, setSeatData] = useState({
-    standard: { seats: []},
-    premium: { seats: []},
-    supreme: { seats: []},
+    standard: { seats: [] },
+    premium: { seats: [] },
+    supreme: { seats: [] },
   });
   const [seatCounts, setSeatCounts] = useState({
     standard: { vacant: 0, blocked: 0, booked: 0 },
@@ -17,31 +17,30 @@ const AdminSeatManagement = () => {
   });
 
   // Store the token in a ref so it's only fetched once
-  const token = localStorage.getItem("authToken");
-
+  const token = localStorage.getItem('authToken');
 
   // Fetch seat data from the backend
   useEffect(() => {
     const fetchSeatData = async () => {
       try {
         const myHeaders = new Headers();
-        myHeaders.append("Authorization", `Bearer ${token}`);
+        myHeaders.append('Authorization', `Bearer ${token}`);
 
         const requestOptions = {
-          method: "GET",
+          method: 'GET',
           headers: myHeaders,
-          redirect: "follow",
+          redirect: 'follow',
         };
 
         // Fetch all seats
-        const response = await fetch("http://localhost:3000/seats/", requestOptions);
+        const response = await fetch('http://localhost:3000/seats/', requestOptions);
         const result = await response.json();
 
         // Organize seats by tier
         const tierData = {
-          standard: { seats: []},
-          premium: { seats: []},
-          supreme: { seats: []},
+          standard: { seats: [] },
+          premium: { seats: [] },
+          supreme: { seats: [] },
         };
 
         const counts = {
@@ -81,19 +80,22 @@ const AdminSeatManagement = () => {
 
     try {
       const myHeaders = new Headers();
-      myHeaders.append("Authorization", `Bearer ${token}`);
-      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append('Authorization', `Bearer ${token}`);
+      myHeaders.append('Content-Type', 'application/json');
 
       const newStatus = action === 'block' ? 'blocked' : 'vacant';
 
       const requestOptions = {
-        method: "PUT",
+        method: 'PUT',
         headers: myHeaders,
         body: JSON.stringify({ status: newStatus }),
-        redirect: "follow",
+        redirect: 'follow',
       };
 
-      const response = await fetch(`http://localhost:3000/seats/status/${selectedSeat.seatNumber}`, requestOptions);
+      const response = await fetch(
+        `http://localhost:3000/seats/status/${selectedSeat.seatNumber}`,
+        requestOptions
+      );
 
       if (response.ok) {
         const updatedSeat = await response.json();
@@ -108,8 +110,8 @@ const AdminSeatManagement = () => {
         }));
 
         // Refresh seat counts
-        const countResponse = await fetch("http://localhost:3000/seats/", {
-          headers: { Authorization: {token} },
+        const countResponse = await fetch('http://localhost:3000/seats/', {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const countData = await countResponse.json();
         const counts = {
@@ -143,13 +145,13 @@ const AdminSeatManagement = () => {
   const getSeatColor = (status) => {
     switch (status) {
       case 'booked':
-        return 'btn-danger';
+        return 'btn-danger'; // Red for booked seats
       case 'blocked':
-        return 'btn-dark';
+        return 'btn-dark'; // Black for blocked seats
       case 'vacant':
-        return 'btn-secondary';
+        return 'btn-success'; // Green for vacant seats
       default:
-        return 'btn-light';
+        return 'btn-light'; // Default color
     }
   };
 
@@ -169,7 +171,7 @@ const AdminSeatManagement = () => {
               <span>Blocked</span>
             </div>
             <div className="d-flex align-items-center">
-              <span className="badge bg-secondary me-2">&nbsp;</span>
+              <span className="badge bg-success me-2">&nbsp;</span>
               <span>Vacant</span>
             </div>
           </div>
@@ -262,15 +264,27 @@ const AdminSeatManagement = () => {
                   ></button>
                 </div>
                 <div className="modal-body">
-                  <p><strong>Status:</strong> {selectedSeat.status}</p>
-                  <p><strong>Price:</strong> ₹{selectedSeat.price}</p>
-                  <p><strong>Deposit:</strong> ₹{selectedSeat.deposit}</p>
+                  <p>
+                    <strong>Status:</strong> {selectedSeat.status}
+                  </p>
+                  <p>
+                    <strong>Price:</strong> ₹{selectedSeat.price}
+                  </p>
+                  <p>
+                    <strong>Deposit:</strong> ₹{selectedSeat.deposit}
+                  </p>
 
                   {selectedSeat.user && (
                     <div className="mt-3">
-                      <p><strong>User:</strong> {selectedSeat.user.name}</p>
-                      <p><strong>Email:</strong> {selectedSeat.user.email}</p>
-                      <p><strong>Phone:</strong> {selectedSeat.user.phone}</p>
+                      <p>
+                        <strong>User:</strong> {selectedSeat.user.name}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {selectedSeat.user.email}
+                      </p>
+                      <p>
+                        <strong>Phone:</strong> {selectedSeat.user.phone}
+                      </p>
                     </div>
                   )}
 
