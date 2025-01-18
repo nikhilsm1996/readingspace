@@ -1,14 +1,68 @@
-import { useEffect, useState } from 'react';
-import { Card, CardBody, Table } from 'reactstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from "react";
+import { Card, CardBody, Table, Button } from "reactstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const AdPayment = () => {
   const [payments, setPayments] = useState([]);
 
+  // Fetch payments from the backend
   const fetchPayments = async () => {
-    const response = await fetch('http://localhost:5000/api/payments');
-    const result = await response.json();
-    setPayments(result);
+    const token = localStorage.getItem("authToken"); // Get the admin's token from localStorage
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/payment?status", requestOptions);
+      const result = await response.json();
+      if (response.ok) {
+        setPayments(result.payments);
+      } else {
+        throw new Error(result.message || "Failed to fetch payments");
+      }
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+    }
+  };
+
+  // Update payment status from "processing" to "completed"
+  const updatePaymentStatus = async (transactionId) => {
+    const token = localStorage.getItem("authToken"); // Get the admin's token from localStorage
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const raw = JSON.stringify({
+      transactionId: transactionId,
+      paymentStatus: "completed",
+      paymentCompleted: true,
+    });
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/payment/confirm-payment", requestOptions);
+      const result = await response.json();
+      if (response.ok) {
+        console.log("Payment status updated:", result);
+        // Refresh the payments list after updating
+        fetchPayments();
+      } else {
+        throw new Error(result.message || "Failed to update payment status");
+      }
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+    }
   };
 
   useEffect(() => {
@@ -24,22 +78,38 @@ const AdPayment = () => {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Phone Number</th>
+                <th>Transaction ID</th>
+                <th>User Email</th>
+                <th>Seat Number</th>
                 <th>Tier</th>
-                <th>Subscription Period</th>
-                <th>Next Payment Due</th>
+                <th>Payment Method</th>
+                <th>Payment Date</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {payments.map((payment, index) => (
-                <tr key={payment.id}>
+                <tr key={payment.transactionId}>
                   <th scope="row">{index + 1}</th>
-                  <td>{payment.name}</td>
-                  <td>{payment.phoneNumber}</td>
-                  <td>{payment.tier}</td>
-                  <td>{`${payment.startDate} to ${payment.endDate}`}</td>
-                  <td>{payment.nextPaymentDue}</td>
+                  <td>{payment.transactionId}</td>
+                  <td>{payment.userEmail}</td>
+                  <td>{payment.seatNumber}</td>
+                  <td>{payment.tierName}</td>
+                  <td>{payment.paymentMethod}</td>
+                  <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
+                  <td>{payment.paymentStatus}</td>
+                  <td>
+                    {payment.paymentStatus === "processing" && (
+                      <Button
+                        color="success"
+                        size="sm"
+                        onClick={() => updatePaymentStatus(payment.transactionId)}
+                      >
+                        Mark as Completed
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
