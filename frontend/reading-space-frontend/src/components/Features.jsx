@@ -88,7 +88,7 @@ const Features = () => {
   return (
     <section id="features" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Times New Roman', serif" }}>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Open Sans', sans-serif" }}>
           Facilities We Provide for Our Libraries
         </h2>
         <div className="d-flex justify-content-between align-items-center">
@@ -121,7 +121,7 @@ const Features = () => {
                   style={{ height: "200px", objectFit: "cover" }}
                 />
                 <div className="card-body">
-                  <h5 className="card-title fw-bold" style={{ fontFamily: "'Times New Roman', serif" }}>
+                  <h5 className="card-title fw-bold" style={{ fontFamily: "'Open Sans', sans-serif"}}>
                     {feature.title}
                   </h5>
                   <p className="card-text text-muted" style={{ fontFamily: "'Open Sans', sans-serif" }}>
