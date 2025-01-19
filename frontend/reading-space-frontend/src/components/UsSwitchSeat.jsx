@@ -66,13 +66,23 @@ const SwitchSeat = () => {
   // Handle seat selection
   const handleSeatSelect = (seat) => {
     if (seat.status === 'vacant') {
-      setSelectedSeat(seat.seatNumber === selectedSeat ? null : seat.seatNumber);
+      const confirmSelection = window.confirm(
+        `Are you sure you want to select seat ${seat.seatNumber}?`
+      );
+      if (confirmSelection) {
+        setSelectedSeat(seat.seatNumber === selectedSeat ? null : seat.seatNumber);
+      }
     }
   };
 
   // Handle seat switching
   const handleSwitchSeat = async () => {
     if (!selectedSeat) return;
+
+    const confirmSwitch = window.confirm(
+      `Are you sure you want to switch to seat ${selectedSeat}?`
+    );
+    if (!confirmSwitch) return;
 
     setLoading(true);
     setError(null);
@@ -97,27 +107,8 @@ const SwitchSeat = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // Update the current seat and reset the selected seat
-        setCurrentSeat(result.newSeat);
-        setSelectedSeat(null);
-
-        // Update the seat data to reflect the new status
-        const updatedSeatData = { ...seatData };
-        const tierSeats = updatedSeatData[selectedTier];
-
-        const updatedTierSeats = tierSeats.map((seat) => {
-          if (seat.seatNumber === currentSeat.seatNumber) {
-            return { ...seat, status: 'vacant' }; // Mark old seat as vacant
-          }
-          if (seat.seatNumber === selectedSeat) {
-            return { ...seat, status: 'booked' }; // Mark new seat as booked
-          }
-          return seat;
-        });
-
-        updatedSeatData[selectedTier] = updatedTierSeats;
-        setSeatData(updatedSeatData);
-        setError(null);
+        // Refresh the page after successful seat switch
+        window.location.reload();
       } else {
         setError(result.message || 'Failed to switch seat. Please try again.');
       }
