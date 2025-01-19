@@ -29,7 +29,7 @@ const Testimonials = () => {
   return (
     <section id="reviews" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Times New Roman', serif" }}>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Open Sans', sans-serif" }}>
           What Our Users Say
         </h2>
         <div className="row g-4">
