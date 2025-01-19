@@ -234,6 +234,7 @@ console.log("PAYMNT",payments)
       payments: payments.map(payment => ({
         transactionId: payment.transactionId,
         paymentStatus: payment.paymentStatus,
+        paymentMethod:payment.paymentMethod,
         totalAmount: payment.totalAmount,
         userEmail: payment.user.email,
         seatNumber: payment.seat.seatNumber || 'No Seat Number',
