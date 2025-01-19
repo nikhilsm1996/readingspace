@@ -279,6 +279,7 @@ router.get('/mypayments', isAuthenticated, async (req, res) => {
       payments: payments.map(payment => ({
         transactionId: payment.transactionId,
         paymentStatus: payment.paymentStatus,
+        paymentMethod:payment.paymentMethod,
         totalAmount: payment.totalAmount,
         paymentDate: payment.paymentDate,
         seatNumber: payment.seat ? payment.seat.seatNumber : 'No Seat Number',
