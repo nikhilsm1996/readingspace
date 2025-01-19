@@ -106,6 +106,7 @@ Thank you for your payment!
     a.click();
     window.URL.revokeObjectURL(url);
   };
+console.log("Payment details",paymentDetails);
 
   // Navigate to user dashboard
   const goToDashboard = () => {
@@ -118,7 +119,7 @@ Thank you for your payment!
         <Col md={8}>
           <Card className="shadow-sm">
             <Card.Header className="bg-primary text-white">
-              <Card.Title className="mb-0">Payment Screen</Card.Title>
+              <Card.Title className="mb-0">Payment</Card.Title>
             </Card.Header>
             <Card.Body>
               {!paymentStatus && (
@@ -194,7 +195,7 @@ Thank you for your payment!
                         <Col md={6}>
                           <div className="d-flex align-items-center mb-3">
                             <CreditCard size={20} className="me-2 text-secondary" />
-                            <span><strong>Tier:</strong> {paymentDetails.tier}</span>
+                            <span><strong>Tier:</strong> {paymentDetails.tierName}</span>
                           </div>
                           <div className="d-flex align-items-center mb-3">
                             <Wallet size={20} className="me-2 text-secondary" />
