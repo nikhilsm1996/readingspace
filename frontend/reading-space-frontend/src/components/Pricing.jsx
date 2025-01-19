@@ -43,7 +43,7 @@ const Pricing = () => {
   return (
     <section id="pricing" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Times New Roman', serif" }}>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Open Sans', sans-serif" }}>
           Pricing Plans
         </h2>
         <div className="row g-4">
@@ -64,7 +64,7 @@ const Pricing = () => {
                 }}
               >
                 <div className="card-body text-center p-4">
-                  <h5 className="card-title fw-bold mb-3" style={{ fontFamily: "'Times New Roman', serif" }}>
+                  <h5 className="card-title fw-bold mb-3" style={{ fontFamily: "'Open Sans', sans-serif" }}>
                     {plan.name}
                   </h5>
                   <h2 className="card-text text-primary mb-4">{plan.price}</h2>
