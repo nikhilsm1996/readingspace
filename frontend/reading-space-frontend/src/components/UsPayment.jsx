@@ -1,10 +1,23 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Alert, Table } from "react-bootstrap";
+import { Container, Card, Alert, Table, Button } from "react-bootstrap";
+import Payment from "./Payment"; // Import the Payment component
+
+
+// Utility function to format date as DD-MM-YYYY
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0"); // Ensure 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 
 const UsPayment = () => {
   const [paymentHistory, setPaymentHistory] = useState([]); // Payment history
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(""); // Error message
+  const [showPayment, setShowPayment] = useState(false); // State to toggle payment section
+ 
 
   // Fetch payment history from the backend
   useEffect(() => {
@@ -21,7 +34,7 @@ const UsPayment = () => {
 
         const response = await fetch("http://localhost:3000/payment/mypayments", requestOptions);
         const result = await response.json();
-console.log("result", result);
+        console.log("result", result);
 
         if (response.ok) {
           setPaymentHistory(result.payments);
@@ -38,6 +51,9 @@ console.log("result", result);
 
     fetchPaymentHistory();
   }, []);
+
+  // Handle navigation to the user dashboard
+
 
   if (loading) {
     return <p className="text-center">Loading...</p>;
@@ -74,7 +90,7 @@ console.log("result", result);
                 {paymentHistory.map((payment) => (
                   <tr key={payment.transactionId}>
                     <td>{payment.transactionId}</td>
-                    <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
+                    <td>{formatDate(payment.paymentDate)}</td> {/* Use formatDate here */}
                     <td>{payment.tierName}</td>
                     <td>₹{payment.tierPrice}</td>
                     <td>₹{payment.totalAmount - payment.tierPrice}</td> {/* Calculate deposit */}
@@ -82,7 +98,7 @@ console.log("result", result);
                     <td>{payment.paymentMethod}</td>
                     <td>
                       {payment.nextPaymentDueDate
-                        ? new Date(payment.nextPaymentDueDate).toLocaleDateString()
+                        ? formatDate(payment.nextPaymentDueDate) // Use formatDate here
                         : "Not specified"}
                     </td>
                   </tr>
@@ -91,6 +107,25 @@ console.log("result", result);
             </Table>
           ) : (
             <p className="text-muted">No payment history available.</p>
+          )}
+
+          {/* Button to initiate payment */}
+          <div className="text-center mt-4">
+            <Button variant="primary" onClick={() => setShowPayment(true)}>
+              Pay Next Payment
+            </Button>
+          </div>
+
+          {/* Display Payment Component */}
+          {showPayment && (
+            <div className="mt-4">
+              <Payment />
+              <div className="text-center mt-3">
+                <Button variant="secondary" onClick={() => setShowPayment(false)}>
+                  Cancel Payment
+                </Button>
+              </div>
+            </div>
           )}
         </Card.Body>
       </Card>
