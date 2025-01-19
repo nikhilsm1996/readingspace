@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Card, CardBody, Table, Button } from "reactstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
+
+
+// Utility function to format date as DD-MM-YYYY
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0'); // Ensure 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 
 const AdPayment = () => {
   const [payments, setPayments] = useState([]);
@@ -97,7 +106,7 @@ const AdPayment = () => {
                   <td>{payment.seatNumber}</td>
                   <td>{payment.tierName}</td>
                   <td>{payment.paymentMethod}</td>
-                  <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
+                  <td>{formatDate(payment.paymentDate)}</td> {/* Use the formatDate function here */}
                   <td>{payment.paymentStatus}</td>
                   <td>
                     {payment.paymentStatus === "processing" && (
