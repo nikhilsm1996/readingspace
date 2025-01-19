@@ -1,11 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Table } from "react-bootstrap";
 
 const AdminNotification = () => {
   const [message, setMessage] = useState("");
   const [userId, setUserId] = useState("");
   const [notificationType, setNotificationType] = useState("all"); // 'all' or 'specific'
   const [alert, setAlert] = useState({ show: false, message: "", type: "" });
+  const [notifications, setNotifications] = useState([]); // Notifications state
 
+  // Fetch notifications from the backend
+  const fetchNotifications = async () => {
+    const token = localStorage.getItem("authToken");
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/notification/admin", requestOptions);
+      const result = await response.json();
+      if (response.ok) {
+        setNotifications(result.notifications);
+      } else {
+        throw new Error(result.message || "Failed to fetch notifications");
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  // Handle sending notifications
   const handleSendNotification = async () => {
     if (!message) {
       setAlert({ show: true, message: "Please enter a message.", type: "danger" });
@@ -39,19 +67,24 @@ const AdminNotification = () => {
         setAlert({ show: true, message: result.message, type: "success" });
         setMessage("");
         setUserId("");
+        fetchNotifications(); // Refresh notifications after sending
       } else {
         setAlert({ show: true, message: result.message || "Failed to send notification.", type: "danger" });
       }
     } catch (error) {
-      setAlert({ show: true, message: "An error occurred. Please try again.", type: "danger" ,error: error
-      });
+      setAlert({ show: true, message: "An error occurred. Please try again.", type: "danger",error:error });
     }
   };
+
+  // Fetch notifications on component mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
-        <div className="col-md-6">
+        <div className="col-md-8">
           <div className="card shadow">
             <div className="card-body">
               <h3 className="card-title text-center mb-4">Send Notification</h3>
@@ -107,9 +140,38 @@ const AdminNotification = () => {
                 />
               </div>
 
-              <button className="btn btn-primary w-100" onClick={handleSendNotification}>
+              <button className="btn btn-primary w-100 mb-4" onClick={handleSendNotification}>
                 Send Notification
               </button>
+
+              {/* Notification History Table */}
+              <h4 className="text-center mb-3">Notification History</h4>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Message</th>
+                    <th>User</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {notifications.map((notification, index) => (
+                    <tr key={notification._id}>
+                      <td>{index + 1}</td>
+                      <td>{notification.message}</td>
+                      <td>{notification.user?.name || "All Users"}</td>
+                      <td>{new Date(notification.createdAt).toLocaleString()}</td>
+                      <td>
+                        <span className={`badge ${notification.read ? "bg-success" : "bg-warning"}`}>
+                          {notification.read ? "Read" : "Unread"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           </div>
         </div>
