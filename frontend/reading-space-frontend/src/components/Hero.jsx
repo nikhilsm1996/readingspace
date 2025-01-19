@@ -7,7 +7,7 @@ const Hero = () => {
         <div className="row align-items-center">
           {/* Text Content */}
           <div className="col-lg-6">
-            <h1 className="display-5 fw-bold text-primary mb-4" style={{ fontFamily: "'Times New Roman', serif" }}>
+            <h1 className="display-5 fw-bold text-primary mb-4" style={{ fontFamily: "'Open Sans', sans-serif" }}>
               Welcome to ReadingSpace
             </h1>
             <p className="lead text-muted mb-4" style={{ fontFamily: "'Open Sans', sans-serif" }}>
