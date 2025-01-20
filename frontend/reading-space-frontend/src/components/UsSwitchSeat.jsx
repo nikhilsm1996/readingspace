@@ -148,7 +148,7 @@ const SwitchSeat = () => {
               {currentSeat && (
                 <Alert variant="info" className="mb-4">
                   <p><strong>Current Seat:</strong> {currentSeat.seatNumber}</p>
-                  <p><strong>Tier:</strong> {currentSeat.tier.name}</p>
+                  <p><strong>Tier:</strong> {currentSeat.tier.name.toUpperCase()}</p> {/* Capitalize tier name */}
                   <p><strong>Price:</strong> ₹{currentSeat.price}</p>
                   <p><strong>Deposit:</strong> ₹{currentSeat.deposit}</p>
                 </Alert>
@@ -162,7 +162,7 @@ const SwitchSeat = () => {
                     variant={selectedTier === tier ? 'primary' : 'outline-primary'}
                     onClick={() => setSelectedTier(tier)}
                   >
-                    {tier}
+                    {tier.toUpperCase()} {/* Capitalize tier name */}
                   </Button>
                 ))}
               </div>
