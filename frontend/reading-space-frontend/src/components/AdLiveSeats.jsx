@@ -98,41 +98,8 @@ const AdminSeatManagement = () => {
       );
 
       if (response.ok) {
-        const updatedSeat = await response.json();
-        setSeatData((prev) => ({
-          ...prev,
-          [selectedTier]: {
-            ...prev[selectedTier],
-            seats: prev[selectedTier].seats.map((seat) =>
-              seat.seatNumber === updatedSeat.seatNumber ? updatedSeat : seat
-            ),
-          },
-        }));
-
-        // Refresh seat counts
-        const countResponse = await fetch('http://localhost:3000/seats/', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const countData = await countResponse.json();
-        const counts = {
-          standard: { vacant: 0, blocked: 0, booked: 0 },
-          premium: { vacant: 0, blocked: 0, booked: 0 },
-          supreme: { vacant: 0, blocked: 0, booked: 0 },
-          total: { vacant: 0, blocked: 0, booked: 0 },
-        };
-
-        countData.forEach((seat) => {
-          const tier = seat.tier.name;
-          if (seat.status === 'vacant') counts[tier].vacant++;
-          else if (seat.status === 'blocked') counts[tier].blocked++;
-          else if (seat.status === 'booked') counts[tier].booked++;
-        });
-
-        counts.total.vacant = counts.standard.vacant + counts.premium.vacant + counts.supreme.vacant;
-        counts.total.blocked = counts.standard.blocked + counts.premium.blocked + counts.supreme.blocked;
-        counts.total.booked = counts.standard.booked + counts.premium.booked + counts.supreme.booked;
-
-        setSeatCounts(counts);
+        // Reload the page after successful action
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error updating seat:', error);
