@@ -165,7 +165,7 @@ console.log("response2");
         </div>
         <div className="col-md-6 d-none d-md-flex justify-content-center align-items-center">
           <img
-            src="https://images.pexels.com/photos/1029141/pexels-photo-1029141.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            src="https://cdn.pixabay.com/photo/2017/08/06/01/49/table-2587598_1280.jpg"
             alt="Signup Illustration"
             className="img-fluid"
             style={{ maxWidth: "80%", borderRadius: "10px" }}
