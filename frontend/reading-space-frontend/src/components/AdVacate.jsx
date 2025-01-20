@@ -63,8 +63,8 @@ const Vacate = () => {
     }
   };
 
-  // Handle rejecting a vacate request
-  const handleRejectVacate = async (requestId) => {
+  // Handle force removing or expelling a seat
+  const handleForceRemove = async (requestId) => {
     const token = localStorage.getItem("authToken"); // Get the admin's token from localStorage
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}`);
@@ -79,14 +79,14 @@ const Vacate = () => {
       const response = await fetch(`http://localhost:3000/vacation/delete/${requestId}`, requestOptions);
       const result = await response.json();
       if (response.ok) {
-        console.log("Vacate request rejected:", result);
+        console.log("Seat force removed:", result);
         // Refresh the vacate requests list
         fetchVacateRequests();
       } else {
-        throw new Error(result.message || "Failed to reject vacate request");
+        throw new Error(result.message || "Failed to force remove seat");
       }
     } catch (error) {
-      console.error("Error rejecting vacate request:", error);
+      console.error("Error force removing seat:", error);
     }
   };
 
@@ -140,9 +140,9 @@ const Vacate = () => {
                         <Button
                           color="danger"
                           size="sm"
-                          onClick={() => handleRejectVacate(request._id)}
+                          onClick={() => handleForceRemove(request._id)}
                         >
-                          Reject
+                          Force Remove
                         </Button>
                       </>
                     )}
