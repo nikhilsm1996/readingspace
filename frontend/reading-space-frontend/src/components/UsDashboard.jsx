@@ -4,6 +4,15 @@ import { User, Mail, Hash, Clock, CreditCard, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './UsDashboard.css';
 
+// Utility function to format date as DD-MM-YYYY
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0'); // Ensure 2 digits
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
 const UsDashboard = () => {
   const [userData, setUserData] = useState(null);
   const [nextPaymentDue, setNextPaymentDue] = useState(null);
@@ -145,7 +154,7 @@ const UsDashboard = () => {
                 <span>
                   Next Payment Due:{' '}
                   {nextPaymentDue
-                    ? new Date(nextPaymentDue).toLocaleDateString()
+                    ? formatDate(nextPaymentDue) // Use formatDate here
                     : 'Not specified'}
                 </span>
               </div>
