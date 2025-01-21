@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         }
 
         // Generate a JWT token
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '2h' });
 
         // Send the token to the client
         res.status(200).json({
@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
                 email: user.email,
                 name: user.name,
                 role: user.role,
-                seatAssigned: user.seatAssigned, // Include the seatAssigned field
+                seatAssigned: user.seatAssigned, 
             },
             token,
         });

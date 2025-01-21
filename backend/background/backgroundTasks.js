@@ -6,7 +6,11 @@ const Notification = require('../models/notifications-model'); // Assuming this 
 const SeatVacationRequest = require('../models/seatvacation-model'); // Add your seat vacation request model
 const Tier = require('../models/tier-model'); // Add Tier model
 const moment = require('moment-timezone');
-// Cron job to run every day at 3 PM
+// Cron job to run every minute
+
+//for cron job to run 3 pm every day
+// cron.schedule('0  15 * * *')
+
 cron.schedule('* * * * *', async () => {
   try {
     console.log('Running overdue payments check, payment reminders, and overdue notifications...');
@@ -36,10 +40,16 @@ cron.schedule('* * * * *', async () => {
     }
 
     // **Send overdue notifications for users with overdue payments**
+
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 3); // Subtract 3 days
+
+
     const overduePayments = await Payments.find({
-      nextPaymentDueDate: { $lt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) }, // 3 days ago
-      paymentStatus: 'processing', // Only check payments that are pending
+      nextPaymentDueDate: { $lt: currentDate },
+      paymentStatus: 'processing', 
     });
+
 
     for (let payment of overduePayments) {
       const seat = await Seats.findById(payment.seat);
@@ -73,20 +83,23 @@ cron.schedule('* * * * *', async () => {
         seat.status = 'vacant';
         seat.userEmail = null;
         seat.userName = null;
-        seat.user = null; // Unlink the user from the seat
+        seat.user = null; // De -link the user from the seat
         await seat.save();
 
         user.seatAssigned = false;
         user.seat = null;
         await user.save();
 
-        console.log(`Seat ${seat.seatNumber} has been made vacant due to unpaid payment. User ${user.email} unlinked.`);
+        console.log(`Seat ${seat.seatNumber} has been made vacant due to unpaid payment. User ${user.email} de-linked.`);
       }
     }
 
     console.log('Payment reminder and overdue payment notifications completed.');
 
 
+
+
+    // SEAT VACATION  REQUEST
 // Get the current time in UTC and format it
 const localTimeZone = "Asia/Kolkata"; 
 const startOfMinute = moment().tz(localTimeZone).startOf('minute').utc().toDate();
@@ -123,7 +136,7 @@ for (const vacationRequest of vacationRequests) {
       user.seat = null;
 
       // Save the seat and user updates
-      await Promise.all([seat.save(), user.save()]);
+      await Promise.all([seat.save(), user.save()]);  //Save Concurrently 
 
   
       // Notify the user
