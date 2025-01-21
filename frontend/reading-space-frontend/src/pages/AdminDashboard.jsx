@@ -68,6 +68,7 @@ const AdminDashboard = () => {
             <FaExclamationCircle className="me-2" />
             Issues Reported
           </Nav.Link>
+          
         </Nav>
       </div>
 

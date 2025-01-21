@@ -18,9 +18,10 @@ const LandingPage = ({ theme, setTheme }) => {
       <Features />
       <Pricing />
       <Testimonials />
+      <Blog/>
       <Contact />
       <Footer />
-      <Blog/>
+      
     </>
   );
 };
