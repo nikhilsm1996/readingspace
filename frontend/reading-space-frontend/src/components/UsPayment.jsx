@@ -50,7 +50,7 @@ const UsPayment = () => {
     };
 
     fetchPaymentHistory();
-  }, []);
+  }, []);//
 
   // Handle navigation to the user dashboard
 
