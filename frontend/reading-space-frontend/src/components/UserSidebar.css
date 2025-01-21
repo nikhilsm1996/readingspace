@@ -1,0 +1,26 @@
+.collapsed-sidebar .hover-effect span {
+    display: none;
+  }
+  
+  .hover-effect:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .btn-danger:hover {
+    background-color: #e63939;
+  }
+  
+  .sidebar-header {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .nav-link {
+    font-size: 14px;
+    margin: 8px 10px;
+  }
+  
+  .content-wrapper {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  

@@ -17,6 +17,7 @@ const LandingPage = ({ theme, setTheme }) => {
       <About />
       <Features />
       <Pricing />
+      <Blog/>
       <Testimonials />
       <Blog/>
       <Contact />

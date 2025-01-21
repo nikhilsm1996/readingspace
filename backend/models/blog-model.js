@@ -6,27 +6,27 @@ const blogSchema = new Schema({
   title: {
     type: String,
     required: true,
-    trim: true, // To remove any extra spaces
+    trim: true, 
   },
   description: {
     type: String,
     required: true,
   },
   image: {
-    type: String, // Will store the URL or file path of the image
+    type: String, 
     required: true,
   },
   link: {
-    type: String, // URL or link for the blog
-    required: false, // Optional field for the link
+    type: String, 
+    required: false,
   },
   postedDate: {
     type: Date,
-    default: Date.now, // Automatically sets the current date and time
+    default: Date.now, 
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model, assuming each blog is created by a user
+    ref: 'User', 
     required: true,
   },
 });

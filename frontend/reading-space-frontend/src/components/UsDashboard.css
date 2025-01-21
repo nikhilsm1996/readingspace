@@ -1,0 +1,23 @@
+/* Custom styles for the cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }

@@ -1,5 +1,3 @@
-
-
 const Testimonials = () => {
   const reviews = [
     {
@@ -29,22 +27,47 @@ const Testimonials = () => {
   ];
 
   return (
-    <section id="reviews" className="py-5">
+    <section id="reviews" className="py-5 bg-light">
       <div className="container">
-        <h2 className="text-center fw-bold mb-4">What Our Users Say</h2>
+        <h2 className="text-center fw-bold text-primary mb-5" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+          What Our Users Say
+        </h2>
         <div className="row g-4">
           {reviews.map((review, index) => (
             <div key={index} className="col-md-6 col-lg-3">
-              <div className="card text-center shadow-sm h-100">
+              <div
+                className="card text-center shadow-sm h-100 border-0"
+                style={{
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-5px)";
+                  e.currentTarget.style.boxShadow = "0 10px 20px rgba(0, 0, 0, 0.1)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+                }}
+              >
                 <img
                   src={review.image}
                   alt={review.name}
-                  className="rounded-circle mt-4 mx-auto"
-                  style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                  className="rounded-circle mt-4 mx-auto shadow-sm"
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    objectFit: "cover",
+                    border: "3px solid #fff",
+                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                  }}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">{review.name}</h5>
-                  <p className="card-text text-muted">{review.message}</p>
+                  <h5 className="card-title fw-bold" style={{ fontFamily: "'Times New Roman', serif" }}>
+                    {review.name}
+                  </h5>
+                  <p className="card-text text-muted" style={{ fontFamily: "'Open Sans', sans-serif" }}>
+                    {review.message}
+                  </p>
                 </div>
               </div>
             </div>
