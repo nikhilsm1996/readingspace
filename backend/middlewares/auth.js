@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/registration-model'); // Path to your User model
+const User = require('../models/registration-model'); 
 
-const JWT_SECRET = process.env.JWT_SECRET || '123456789ABCDEF'; // Replace fallback in production
+const JWT_SECRET = process.env.JWT_SECRET || '123456789ABCDEF'; 
 
 const isAuthenticated = async (req, res, next) => {
     try {
@@ -21,7 +21,7 @@ const isAuthenticated = async (req, res, next) => {
             return res.status(401).json({ error: 'Authentication failed.' });
         }
 
-        // Attach limited user details to request object, including seatAssigned
+        // Attach user details to request object
         req.user = { 
             id: user._id, 
             name: user.name, 
@@ -29,7 +29,7 @@ const isAuthenticated = async (req, res, next) => {
             role: user.role,
             seatAssigned: user.seatAssigned,
         };
-        next();
+        next(); // hands over control back to the route
     } catch (err) {
         console.error('Authentication error:', err);
         if (err.name === 'TokenExpiredError') {
