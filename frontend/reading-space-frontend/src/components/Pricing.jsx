@@ -15,7 +15,7 @@ const Pricing = () => {
       ],
     },
     {
-      name: "Normal",
+      name: "Premium",
       price: "₹2,999",
       features: [
         "10 hours/day",
@@ -27,7 +27,7 @@ const Pricing = () => {
       ],
     },
     {
-      name: "Premium",
+      name: "Supreme",
       price: "₹3,999",
       features: [
         "Unlimited Access",
