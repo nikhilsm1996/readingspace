@@ -21,6 +21,8 @@ const LandingPage = () => {
       <Testimonials />
       <Contact />
       <Footer />
+   
+
     </>
   );
 };
