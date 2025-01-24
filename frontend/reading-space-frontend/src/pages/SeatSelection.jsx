@@ -18,6 +18,46 @@ const SeatSelection = () => {
 
   const token = localStorage.getItem('authToken');
 
+  // Tier details with features and pricing
+  const tiers = [
+    {
+      name: 'Standard',
+      price: '₹1,999',
+      features: [
+        '5 hours/day',
+        'Comfortable Seating',
+        'High-Speed WiFi',
+        'Basic Amenities',
+        'Access to Reading Materials',
+        'Power Outlets for Charging',
+      ],
+    },
+    {
+      name: 'Premium',
+      price: '₹2,999',
+      features: [
+        '10 hours/day',
+        'Comfortable Seating',
+        'High-Speed WiFi',
+        'Basic Amenities',
+        'Access to Reading Materials',
+        'Dedicated Quiet Zone',
+      ],
+    },
+    {
+      name: 'Supreme',
+      price: '₹3,999',
+      features: [
+        'Unlimited Access',
+        'Private Cabin',
+        'Complimentary Coffee',
+        'All Premium Amenities',
+        'Exclusive Access to Premium Reading Materials',
+        'On-Demand Assistance',
+      ],
+    },
+  ];
+
   // Fetch seat data from the backend
   useEffect(() => {
     const fetchSeatData = async () => {
@@ -41,7 +81,7 @@ const SeatSelection = () => {
         };
 
         result.forEach((seat) => {
-          const tier = seat.tier.name;
+          const tier = seat.tier.name.toLowerCase();
           tierData[tier].push(seat);
         });
 
@@ -56,15 +96,7 @@ const SeatSelection = () => {
   }, [token]);
 
   // Get seat statistics for a tier
-  const getSeatStats = (tier) => {
-    const seats = seatData[tier];
-    return {
-      total: seats.length,
-      vacant: seats.filter((s) => s.status === 'vacant').length,
-      booked: seats.filter((s) => s.status === 'booked').length,
-      blocked: seats.filter((s) => s.status === 'blocked').length,
-    };
-  };
+  
 
   // Get seat color based on status
   const getSeatColor = (status, isSelected) => {
@@ -123,7 +155,7 @@ const SeatSelection = () => {
       if (response.ok) {
         // Update the seat status in the local state
         const updatedSeatData = { ...seatData };
-        const tierSeats = updatedSeatData[selectedTier];
+        const tierSeats = updatedSeatData[selectedTier.toLowerCase()];
         const updatedSeat = tierSeats.find((s) => s.seatNumber === selectedSeat);
         if (updatedSeat) {
           updatedSeat.status = 'booked';
@@ -148,24 +180,37 @@ const SeatSelection = () => {
       <Container className="py-5">
         {bookingStage === 'tiers' && (
           <>
-            <h2 className="text-center text-white mb-4">Select Your Tier</h2>
+            <h2 className="text-center text-white mb-5 fw-bold">Choose Your Tier</h2>
             <Row className="g-4">
-              {Object.keys(seatData).map((tier) => {
-                const stats = getSeatStats(tier);
+              {tiers.map((tier, index) => {
                 return (
-                  <Col key={tier} md={4}>
+                  <Col key={index} md={4}>
                     <Card
                       className="h-100 shadow-lg border-0 cursor-pointer hover-scale"
-                      onClick={() => handleTierSelect(tier)}
+                      onClick={() => handleTierSelect(tier.name)}
+                      style={{ transition: 'transform 0.3s ease, box-shadow 0.3s ease' }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-5px)';
+                        e.currentTarget.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                      }}
                     >
-                      <Card.Body className="text-center">
-                        <h3 className="card-title text-capitalize fw-bold">{tier}</h3>
-                        <div className="text-muted">
-                          <p>Total Seats: {stats.total}</p>
-                          <p className="text-success">Available: {stats.vacant}</p>
-                          <p className="text-danger">Booked: {stats.booked}</p>
-                          <p>Blocked: {stats.blocked}</p>
-                        </div>
+                      <Card.Body className="text-center p-4">
+                        <h3 className="card-title fw-bold mb-3">{tier.name}</h3>
+                        <h2 className="card-text text-primary mb-4">{tier.price}</h2>
+                        <ul className="list-unstyled mb-4">
+                          {tier.features.map((feature, i) => (
+                            <li key={i} className="mb-2 text-muted">
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        <Button variant="primary" className="w-100">
+                          Select {tier.name}
+                        </Button>
                       </Card.Body>
                     </Card>
                   </Col>
@@ -188,7 +233,7 @@ const SeatSelection = () => {
 
               {/* Seat Grid */}
               <div className="seat-grid mb-4">
-                {seatData[selectedTier].map((seat) => (
+                {seatData[selectedTier.toLowerCase()].map((seat) => (
                   <div
                     key={seat.seatNumber}
                     className={`seat ${getSeatColor(seat.status, seat.seatNumber === selectedSeat)}`}
