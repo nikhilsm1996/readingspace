@@ -17,7 +17,7 @@ const userSchema = new Schema({
     required: true,
     unique: true, // Ensures email is unique in the collection
     match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address'], // Basic regex for email validation
-  },
+  }, 
   password: {
     type: String,
     required: true,

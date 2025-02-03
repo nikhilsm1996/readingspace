@@ -5,7 +5,7 @@ const isAdmin = require('../middlewares/adminAuth');
 const upload = require('../multerConfig');
 
 const router = express.Router();
-
+ 
 
 
 // Route to create a new blog
